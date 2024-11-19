@@ -38,17 +38,30 @@ import javafx.stage.Stage;
  */
 public class Controlador implements Initializable{
     Stage stageAñadir;
+    
+    
+    @FXML
+    private ImageView imgAñadir;
     @FXML
     private Button btnAñadir;
-
+    
+    @FXML
+    private ImageView imgClientes;
     @FXML
     private Button btnClientes;
 
     @FXML
+    private ImageView imgCompra;
+    @FXML
     private Button btnCompras;
 
     @FXML
+    private ImageView imgJuegos;
+    @FXML
     private Button btnJuegos;
+    
+    @FXML
+    private Button btnSalir;
     
     @FXML
     private StackPane contenedorTablas;
@@ -246,6 +259,46 @@ public class Controlador implements Initializable{
         return juegos;
     }
     
+    private void inicializarImagenes(){
+        imgAñadir.setImage(new Image(getClass().getClassLoader().getResourceAsStream("Clientes.png")));
+        imgClientes.setImage(new Image(getClass().getClassLoader().getResourceAsStream("salir.png")));
+        imgCompra.setImage(new Image(getClass().getClassLoader().getResourceAsStream("salir.png")));
+        imgJuegos.setImage(new Image(getClass().getClassLoader().getResourceAsStream("salir.png")));
+    }
+    
+    @FXML
+    void salir(ActionEvent event) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Advertencia");
+            alert.setHeaderText("¿Estás seguro de que deseas cerrar la ventana?");
+            alert.setContentText("Los cambios realizados no se guardarán.");
+            Optional<ButtonType> respuesta = alert.showAndWait();
+            if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                System.exit(0);
+            }
+    }
+    
+    private SimpleObjectProperty<ImageView> cargarImagen(String url) {
+        try {
+            if (url == null || url.isEmpty()) {
+                throw new IllegalArgumentException("URL no válida");
+            }
+
+            Image image = new Image(url);
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(50);
+            imageView.setFitWidth(50);
+            return new SimpleObjectProperty<>(imageView);
+
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            ImageView errorImageView = new ImageView(new Image("./prueba.jpg"));
+            errorImageView.setFitHeight(50);
+            errorImageView.setFitWidth(50);
+            return new SimpleObjectProperty<>(errorImageView);
+        }
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         dni.setCellValueFactory(new PropertyValueFactory<>("dni"));
@@ -275,24 +328,5 @@ public class Controlador implements Initializable{
         
         
     }
-    private SimpleObjectProperty<ImageView> cargarImagen(String url) {
-        try {
-            if (url == null || url.isEmpty()) {
-                throw new IllegalArgumentException("URL no válida");
-            }
-
-            Image image = new Image(url);
-            ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(50);
-            imageView.setFitWidth(50);
-            return new SimpleObjectProperty<>(imageView);
-
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            ImageView errorImageView = new ImageView(new Image("./prueba.jpg"));
-            errorImageView.setFitHeight(50);
-            errorImageView.setFitWidth(50);
-            return new SimpleObjectProperty<>(errorImageView);
-        }
-    }
+    
 }

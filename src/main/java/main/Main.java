@@ -35,7 +35,7 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(event -> {
             event.consume();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Advertencia");
+            alert.setTitle("Advertencia ");
             alert.setHeaderText("¿Estás seguro de que deseas cerrar la aplicación?");
             Optional<ButtonType> respuesta = alert.showAndWait();
             if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
