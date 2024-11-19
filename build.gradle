@@ -31,8 +31,8 @@ mainClassName = 'main.Main'
 sourceSets {
   main {
     resources {
-        srcDirs = ["src/main/java"]
-        includes = ["**/*.fxml"]  //Importante para poder abrir una extensión no reconocida
+        srcDirs = ["src/main/java","src/main/resources"]
+        includes = ["**/*.fxml","**/*.png","**/*.properties"]  //Importante para poder abrir una extensión no reconocida
     }
   }
 }

@@ -1,15 +1,23 @@
 package controladores;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import static java.lang.System.exit;
 import modelos.Juego;
 import modelos.Compras;
 import modelos.Cliente;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -38,7 +46,9 @@ import javafx.stage.Stage;
  */
 public class Controlador implements Initializable{
     Stage stageAñadir;
-    
+    Connection conexion;
+    Statement st;
+    ResultSet rs;
     
     @FXML
     private ImageView imgAñadir;
@@ -187,20 +197,20 @@ public class Controlador implements Initializable{
     
     private ObservableList<Cliente> obtenerClientesBD() {
         ObservableList<Cliente> clientes = FXCollections.observableArrayList();
-        try (Connection conectar = ConexionMySQL.conectarBaseDeDatos()) {
+        if (conexion != null) {
             String sql = """
                     SELECT dni, nombre, telefono, email, socio
                     FROM Clientes
                     """;
-            PreparedStatement consulta = conectar.prepareStatement(sql);
-            ResultSet resultado = consulta.executeQuery();
-            while (resultado.next()) {
+            try{
+            rs = st.executeQuery(sql);
+            while (rs.next()) {
                  Cliente cliente = new Cliente(
-                    resultado.getString("dni"),
-                    resultado.getString("nombre"),
-                    resultado.getString("email"),
-                    resultado.getInt("telefono"),
-                    resultado.getBoolean("socio")
+                    rs.getString("dni"),
+                    rs.getString("nombre"),
+                    rs.getString("email"),
+                    rs.getInt("telefono"),
+                    rs.getBoolean("socio")
                 );
                 clientes.add(cliente);
             }
@@ -208,63 +218,75 @@ public class Controlador implements Initializable{
             e.printStackTrace();
         }
         return clientes;
+        }
+        return null;
     }
     
     private ObservableList<Compras> obtenerComprasBD() {
         ObservableList<Compras> compras = FXCollections.observableArrayList();
-        try (Connection conectar = ConexionMySQL.conectarBaseDeDatos()) {
+        if (conexion != null) {
             String sql = """
                     SELECT Fecha_Compra, dni, id_Juego
                     FROM Compras
                     """;
-            PreparedStatement consulta = conectar.prepareStatement(sql);
-            ResultSet resultado = consulta.executeQuery();
-            while (resultado.next()) {
+            try{
+            rs = st.executeQuery(sql);
+            while (rs.next()) {
                  Compras compra = new Compras(
-                    resultado.getDate("Fecha_Compra"),
-                    resultado.getString("dni"),
-                    resultado.getInt("id_Juego")
+                    rs.getDate("Fecha_Compra"),
+                    rs.getString("dni"),
+                    rs.getInt("id_Juego")
                 );
                 compras.add(compra);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+                System.out.println("Excepción SQL: "+e.getMessage());
         }
         return compras;
+        }
+        return null;
     }
     private ObservableList<Juego> obtenerJuegosBD() {
         ObservableList<Juego> juegos = FXCollections.observableArrayList();
-        try (Connection conectar = ConexionMySQL.conectarBaseDeDatos()) {
+        if (conexion != null) {
             String sql = """
                     SELECT id_Juego, Nombre, Descripcion, Plataforma, Imagen, Stock, Precio
                     FROM Juegos
                     """;
-            PreparedStatement consulta = conectar.prepareStatement(sql);
-            ResultSet resultado = consulta.executeQuery();
-            while (resultado.next()) {
-                 Juego juego = new Juego(
-                    resultado.getInt("id_Juego"),
-                    resultado.getString("Imagen"),
-                    resultado.getString("Nombre"),
-                    resultado.getString("Plataforma"),
-                    resultado.getString("Descripcion"),
-                    resultado.getInt("Stock"),
-                    resultado.getDouble("Precio")
-                );
-                juegos.add(juego);
+            try{
+                rs = st.executeQuery(sql);
+                while (rs.next()) {
+                     Juego juego = new Juego(
+                        rs.getInt("id_Juego"),
+                        rs.getString("Imagen"),
+                        rs.getString("Nombre"),
+                        rs.getString("Plataforma"),
+                        rs.getString("Descripcion"),
+                        rs.getInt("Stock"),
+                        rs.getDouble("Precio")
+                    );
+                    juegos.add(juego);
+                }
+            } catch (SQLException e) {
+                    System.out.println("Excepción SQL: "+e.getMessage());
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return juegos;
         }
-        return juegos;
+        return null;
     }
     
-    private void inicializarImagenes(){
-        imgAñadir.setImage(new Image(getClass().getClassLoader().getResourceAsStream("Clientes.png")));
-        imgClientes.setImage(new Image(getClass().getClassLoader().getResourceAsStream("salir.png")));
-        imgCompra.setImage(new Image(getClass().getClassLoader().getResourceAsStream("salir.png")));
-        imgJuegos.setImage(new Image(getClass().getClassLoader().getResourceAsStream("salir.png")));
+    private void inicializarImagenes() {
+        try {
+            imgAñadir.setImage(new Image(getClass().getResourceAsStream("/imagenes/añadir.png")));
+            imgClientes.setImage(new Image(getClass().getResourceAsStream("/imagenes/clientes.png")));
+            imgCompra.setImage(new Image(getClass().getResourceAsStream("/imagenes/compra.png")));
+            imgJuegos.setImage(new Image(getClass().getResourceAsStream("/imagenes/juegos.png")));
+        } catch (Exception e) {
+            System.out.println("Error al cargar las imágenes: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
+
     
     @FXML
     void salir(ActionEvent event) {
@@ -298,9 +320,63 @@ public class Controlador implements Initializable{
             return new SimpleObjectProperty<>(errorImageView);
         }
     }
+    public Connection getConnection() throws IOException {
+        
+        Properties properties = new Properties();
+        String IP, PORT, BBDD, USER, PWD;
+        try {
+            InputStream input_ip = new FileInputStream("ip.properties");
+            properties.load(input_ip);
+            IP = (String) properties.get("IP");
+        } catch (FileNotFoundException e) {
+            System.out.println("No se pudo encontrar el archivo de propiedades para IP, se establece localhost por defecto");
+            IP = "localhost";
+        }
+
+        InputStream input = getClass().getClassLoader().getResourceAsStream("bbdd.properties");
+        if (input == null) {
+            System.out.println("No se pudo encontrar el archivo de propiedades");
+            return null;
+        } else {
+            
+            properties.load(input);
+           
+            PORT = (String) properties.get("PORT");
+            BBDD = (String) properties.get("BBDD");
+            USER = (String) properties.get("USER");//USER de MARIADB en LAMP 
+            PWD = (String) properties.get("PWD");//PWD de MARIADB en LAMP 
+
+            Connection conn;
+            try {
+                String cadconex = "jdbc:mysql://" + IP + ":" + PORT + "/" + BBDD + " USER:" + USER + "PWD:" + PWD;
+                System.out.println(cadconex);
+                //Si usamos LAMP Funciona con ambos conectores
+                conn = DriverManager.getConnection("jdbc:mysql://" + IP + ":" + PORT + "/" + BBDD, USER, PWD);
+                return conn;
+            } catch (SQLException e) {
+                System.out.println("Error SQL: " + e.getMessage());
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Ha ocurrido un error de conexión");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+                exit(0);
+                return null;
+            }
+        }
+    }
+    
     
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    public void initialize(URL url, ResourceBundle rb) { 
+        try{
+            conexion = this.getConnection();
+            if (conexion != null) {
+                this.st = conexion.createStatement();
+            }
+        } catch (IOException | SQLException e) {
+        }
+        if (conexion != null) {
         dni.setCellValueFactory(new PropertyValueFactory<>("dni"));
         nombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         email.setCellValueFactory(new PropertyValueFactory<>("email"));
@@ -325,8 +401,9 @@ public class Controlador implements Initializable{
         stock.setCellValueFactory(new PropertyValueFactory<>("Stock"));
         tablaJuegos.setItems(obtenerJuegosBD());
         
+        inicializarImagenes();
         
-        
+        }  
     }
     
 }
