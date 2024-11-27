@@ -24,6 +24,7 @@ javafx {
 
 dependencies {
     implementation 'mysql:mysql-connector-java:8.0.30'
+    implementation 'org.controlsfx:controlsfx:11.2.1'
 }
 
 mainClassName = 'main.Main'

@@ -2,6 +2,11 @@ package controladores;
 
     import java.io.File;
     import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
     import java.util.Optional;
     import java.util.ResourceBundle;
     import javafx.event.ActionEvent;
@@ -21,6 +26,9 @@ package controladores;
  * @author Juanan
  */
 public class controladorAñadirJuego implements Initializable{
+    Connection conexion;
+    Statement st;
+    ResultSet rs;
     
     @FXML
     private Button btnAceptar;
@@ -73,6 +81,20 @@ public class controladorAñadirJuego implements Initializable{
     
     @FXML
     void aceptar(ActionEvent event) {
+        /*String sql = "INSERT INTO Juegos VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(sql);
+            preparedStatement.setString(1, ivImagen.toString());
+            preparedStatement.setString(2, tfId.getText());
+            preparedStatement.setString(3, tfNombre.getText());
+            preparedStatement.setString(4, tfPlataforma.getText());
+            preparedStatement.setDouble(5, Double.parseDouble(tfPrecio.getText()));
+            preparedStatement.setInt(6, Integer.parseInt(tfStock.getText()));
+            preparedStatement.executeUpdate();
+            
+        } catch (SQLException e) {
+            System.out.println("Excepción: "+e.getMessage());
+        }*/
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Adevertencia");
         alert.setHeaderText("¿Estás seguro de que deseas ACEPTAR la operación?");

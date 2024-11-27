@@ -3,7 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package controladores;
+import java.io.IOException;
 import java.net.URL;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -44,6 +47,19 @@ public class controladorAñadirCliente implements Initializable{
     
     @FXML
     void aceptar(ActionEvent event) {
+        /*
+        String query = "INSERT INTO Clientes VALUES (?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement preparedStatement = conexion.prepareStatement(query);
+            preparedStatement.setString(1, ftDni.getText());
+            preparedStatement.setString(3, ftNombre.getText());
+            preparedStatement.setString(2, ftEmail.getText());
+            preparedStatement.setInt(5, Integer.parseInt(chbSocio.getText()));
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Excepción: "+e.getMessage());
+        }*/
+        
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Adevertencia");
         alert.setHeaderText("¿Estás seguro de que deseas ACEPTAR la operación?");
@@ -68,13 +84,11 @@ public class controladorAñadirCliente implements Initializable{
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             Stage stage = (Stage) btnCancelar.getScene().getWindow();
-            stage.close();
+            stage.close(); 
         }
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
     }
-
 }
-

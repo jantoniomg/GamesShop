@@ -1,6 +1,12 @@
 package controladores;
 
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -17,6 +23,9 @@ import javafx.stage.Stage;
  * @author Juanan
  */
 public class controladorAñadirCompra implements Initializable{
+   
+    Statement st;
+    ResultSet rs;
     
     @FXML
     private TextField TFnJuego;
@@ -34,7 +43,17 @@ public class controladorAñadirCompra implements Initializable{
     private TextField tfDNI;
 
     @FXML
-    void aceptar(ActionEvent event) {
+    void aceptar(ActionEvent event)throws Exception{
+        /*
+        String query = "INSERT INTO Compra VALUES (?, ?, ?)";
+        try {
+            PreparedStatement ps = this.conexion.prepareStatement(query);
+            
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Excepción: "+e.getMessage());
+        }*/
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Adevertencia");
         alert.setHeaderText("¿Estás seguro de que deseas ACEPTAR la operación?");

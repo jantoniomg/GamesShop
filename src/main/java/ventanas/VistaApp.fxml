@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -51,45 +52,71 @@
       <Separator prefWidth="200.0" />
       <StackPane fx:id="contenedorTablas" prefHeight="223.0" prefWidth="560.0">
          <children>
-            <TableView fx:id="tablaClientes" prefHeight="200.0" prefWidth="200.0">
-              <columns>
-                <TableColumn fx:id="dni" prefWidth="100.0" text="DNI" />
-                <TableColumn fx:id="nombre" prefWidth="175.0" text="Nombre" />
-                  <TableColumn fx:id="email" prefWidth="110.0" text="Email" />
-                  <TableColumn fx:id="telefono" prefWidth="100.0" text="Teléfono" />
-                  <TableColumn fx:id="socio" prefWidth="75.0" text="Socio" />
-              </columns>
-            </TableView>
-            <TableView fx:id="tablaJuegos" prefHeight="200.0" prefWidth="200.0">
-               <columns>
-                  <TableColumn fx:id="id" prefWidth="49.59997367858887" text="ID" />
-                  <TableColumn fx:id="imagenJuego" prefWidth="101.59998321533203" text="Imagen" />
-                  <TableColumn fx:id="nombrejuego" prefWidth="104.79998779296875" text="Nombre" />
-                  <TableColumn fx:id="plataforma" prefWidth="86.4000244140625" text="Plataforma" />
-                  <TableColumn fx:id="descripcion" prefWidth="120.79998779296875" text="Descripción" />
-                  <TableColumn fx:id="stock" prefWidth="45.600006103515625" text="Stock" />
-                  <TableColumn fx:id="precio" prefWidth="52.80002441406248" text="Precio" />
-               </columns>
-            </TableView>
-            <TableView fx:id="tablaCompras" prefHeight="148.0" prefWidth="560.0">
-              <columns>
-                <TableColumn fx:id="fecha" prefWidth="180.0" text="Fecha" />
-                <TableColumn fx:id="cliente" minWidth="0.0" prefWidth="200.0" text="Cliente" />
-                  <TableColumn fx:id="idJuego" prefWidth="180.0" text="Juego" />
-              </columns>
-               <opaqueInsets>
-                  <Insets />
-               </opaqueInsets>
-            </TableView>
+            <Pane fx:id="paneJuegos" prefHeight="148.0" prefWidth="562.0">
+               <children>
+                  <TableView fx:id="tablaJuegos" prefHeight="148.0" prefWidth="560.0">
+                     <columns>
+                        <TableColumn fx:id="id" prefWidth="49.59997367858887" text="ID" />
+                        <TableColumn fx:id="imagenJuego" prefWidth="101.59998321533203" text="Imagen" />
+                        <TableColumn fx:id="nombrejuego" prefWidth="104.79998779296875" text="Nombre" />
+                        <TableColumn fx:id="plataforma" prefWidth="86.4000244140625" text="Plataforma" />
+                        <TableColumn fx:id="descripcion" prefWidth="120.79998779296875" text="Descripción" />
+                        <TableColumn fx:id="stock" prefWidth="45.600006103515625" text="Stock" />
+                        <TableColumn fx:id="precio" prefWidth="52.80002441406248" text="Precio" />
+                     </columns>
+                  </TableView>
+               </children>
+            </Pane>
+            <Pane fx:id="paneClientes" prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <TableView fx:id="tablaClientes" prefHeight="148.0" prefWidth="560.0">
+                    <columns>
+                      <TableColumn fx:id="dni" prefWidth="100.0" text="DNI" />
+                      <TableColumn fx:id="nombre" prefWidth="175.0" text="Nombre" />
+                        <TableColumn fx:id="email" prefWidth="110.0" text="Email" />
+                        <TableColumn fx:id="telefono" prefWidth="100.0" text="Teléfono" />
+                        <TableColumn fx:id="socio" prefWidth="75.0" text="Socio" />
+                    </columns>
+                  </TableView>
+               </children>
+            </Pane>
+            <Pane fx:id="paneCompras" prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <TableView fx:id="tablaCompras" prefHeight="148.0" prefWidth="560.0">
+                    <columns>
+                      <TableColumn fx:id="fecha" prefWidth="180.0" text="Fecha" />
+                      <TableColumn fx:id="cliente" minWidth="0.0" prefWidth="200.0" text="Cliente" />
+                        <TableColumn fx:id="idJuego" prefWidth="180.0" text="Juego" />
+                    </columns>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </TableView>
+               </children>
+            </Pane>
          </children>
          <VBox.margin>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </VBox.margin>
       </StackPane>
-      <Button fx:id="btnSalir" contentDisplay="TOP" onAction="#salir" prefHeight="22.0" prefWidth="126.0" text="_Salir">
-         <VBox.margin>
-            <Insets bottom="20.0" left="20.0" right="20.0" />
-         </VBox.margin>
-      </Button>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Button fx:id="eliminar" mnemonicParsing="false" onAction="#eliminarCompra" text="eliminar">
+                     <HBox.margin>
+                        <Insets bottom="20.0" left="20.0" right="20.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="actualizar" mnemonicParsing="false" onAction="#actualizarCompra" text="actualizar" />
+               </children>
+            </HBox>
+            <Button fx:id="btnSalir" contentDisplay="TOP" onAction="#salir" prefHeight="22.0" prefWidth="126.0" text="_Salir">
+               <HBox.margin>
+                  <Insets bottom="20.0" left="250.0" right="20.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
    </children>
 </VBox>

@@ -32,29 +32,35 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 /**
  *
  * @author Juanan
  */
-public class Controlador implements Initializable{
+public class Controlador implements Initializable {
+
     Stage stageAñadir;
     Connection conexion;
     Statement st;
     ResultSet rs;
-    
+
     @FXML
     private ImageView imgAñadir;
     @FXML
     private Button btnAñadir;
-    
+
     @FXML
     private ImageView imgClientes;
     @FXML
@@ -69,13 +75,20 @@ public class Controlador implements Initializable{
     private ImageView imgJuegos;
     @FXML
     private Button btnJuegos;
-    
+
+    @FXML
+    private Button actualizar;
+    @FXML
+    private Button eliminar;
+
     @FXML
     private Button btnSalir;
-    
+
     @FXML
     private StackPane contenedorTablas;
 
+    @FXML
+    private Pane paneClientes;
     @FXML
     private TableView<Cliente> tablaClientes;
     @FXML
@@ -88,7 +101,9 @@ public class Controlador implements Initializable{
     private TableColumn<Cliente, Integer> telefono;
     @FXML
     private TableColumn<Cliente, Boolean> socio;
-    
+
+    @FXML
+    private Pane paneCompras;
     @FXML
     private TableView<Compras> tablaCompras;
     @FXML
@@ -97,7 +112,9 @@ public class Controlador implements Initializable{
     private TableColumn< Cliente, String> cliente;
     @FXML
     private TableColumn<Juego, Integer> idJuego;
-    
+
+    @FXML
+    private Pane paneJuegos;
     @FXML
     private TableView<Juego> tablaJuegos;
     @FXML
@@ -114,30 +131,169 @@ public class Controlador implements Initializable{
     private TableColumn<Juego, Double> precio;
     @FXML
     private TableColumn<Juego, Integer> stock;
-    
-    Integer tabla=1;
-    @FXML
-    void abrirVentanaClientes(ActionEvent event) {
-        tabla=2;
-        ocultarTodasLasTablas();
-        tablaClientes.setVisible(true);
-    }
 
-    @FXML
-    void abrirVentanaCompras(ActionEvent event) {
-        tabla=1;
-        ocultarTodasLasTablas();
+    Integer tabla = 1;
+
+    private void ocultar() {
+        for (Node node : contenedorTablas.getChildren()) {
+            node.setVisible(false);
+        }
+        paneCompras.setVisible(true);
         tablaCompras.setVisible(true);
     }
 
     @FXML
-    void abrirVentanaJuegos(ActionEvent event) {
-        tabla=3;
+    void abrirVentanaCompras(ActionEvent event) {
+        tabla = 1;
         ocultarTodasLasTablas();
-        tablaJuegos.setVisible(true);
+        paneCompras.setVisible(true);
+        tablaCompras.setVisible(true);
+
+        ContextMenu cmCompras = new ContextMenu();
+        MenuItem ver = new MenuItem("ver");
+        MenuItem editar = new MenuItem("editar");
+        MenuItem eliminar = new MenuItem("eliminar");
+        cmCompras.getItems().addAll(ver, editar, eliminar);
+        tablaCompras.setContextMenu(cmCompras);
+
+        tablaCompras.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
+            if (nuevoValor != null) {
+                eliminar.setOnAction(v -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Advertencia");
+                    alert.setHeaderText("¿Estás seguro que deseas eliminar la compra?");
+                    alert.setContentText("La compra se eliminara para siempre");
+                    Optional<ButtonType> respuesta = alert.showAndWait();
+                    if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                        String sql = "DELETE FROM Compras WHERE Fecha_Compra=?";
+                        try {
+                            PreparedStatement ps = conexion.prepareStatement(sql);
+                            ps.setDate(1, new java.sql.Date(nuevoValor.getFecha().getTime()));
+                            ps.executeUpdate();
+                            introducirCompras();
+                            System.out.println("Se ha eliminado la compra del " + nuevoValor.getFecha());
+                        } catch (SQLException exception) {
+                            System.out.println("Excepción: " + exception.getMessage());
+                        }
+                    }
+                });
+            }
+        });
     }
-    
-    private void cerrarVentana(){
+
+    @FXML
+    void actualizarCompra(ActionEvent event) {
+
+    }
+
+    @FXML
+    void eliminarCompra(ActionEvent event) {
+        if (!tablaCompras.isVisible()) {
+            eliminar.setVisible(false);
+        }
+        Compras compra = tablaCompras.getSelectionModel().getSelectedItem();
+        if (compra != null) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Advertencia");
+            alert.setHeaderText("¿Estás seguro que deseas eliminar la compra?");
+            alert.setContentText("La compra se eliminara para siempre");
+            Optional<ButtonType> respuesta = alert.showAndWait();
+            if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                String sql = "DELETE FROM Compras WHERE Fecha_Compra=?";
+                try {
+                    PreparedStatement ps = conexion.prepareStatement(sql);
+                    ps.setDate(1, new java.sql.Date(compra.getFecha().getTime()));
+                    ps.executeUpdate();
+                    introducirCompras();
+                    System.out.println("Se ha eliminado la compra del " + compra.getFecha());
+                } catch (SQLException exception) {
+                    System.out.println("Excepción: " + exception.getMessage());
+                }
+            } else {
+                System.out.println("Selecciona una Compra para eliminarla");
+            }
+        }
+    }
+
+    @FXML
+    void abrirVentanaClientes(ActionEvent event) {
+        tabla = 2;
+        ocultarTodasLasTablas();
+        paneClientes.setVisible(true);
+        tablaClientes.setVisible(true);
+
+        ContextMenu cmClientes = new ContextMenu();
+        MenuItem ver = new MenuItem("ver");
+        MenuItem editar = new MenuItem("editar");
+        MenuItem eliminar = new MenuItem("eliminar");
+        cmClientes.getItems().addAll(ver, editar, eliminar);
+        tablaClientes.setContextMenu(cmClientes);
+
+        tablaClientes.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
+            if (nuevoValor != null) {
+                eliminar.setOnAction(v -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Advertencia");
+                    alert.setHeaderText("¿Estás seguro de que deseas eliminar el cliente?");
+                    alert.setContentText("El cliente se eliminara para siempre");
+                    Optional<ButtonType> respuesta = alert.showAndWait();
+                    if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                        String sql = "DELETE FROM Clientes WHERE dni=?";
+                        try {
+                            PreparedStatement ps = conexion.prepareStatement(sql);
+                            ps.setString(1, nuevoValor.getDni());
+                            ps.executeUpdate();
+                            introducirClientes();
+                            System.out.println("Se ha eliminado el Cliente con Dni " + nuevoValor.getDni());
+                        } catch (SQLException exception) {
+                            System.out.println("Excepción: " + exception.getMessage());
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    @FXML
+    void abrirVentanaJuegos(ActionEvent event) {
+        tabla = 3;
+        ocultarTodasLasTablas();
+        paneJuegos.setVisible(true);
+        tablaJuegos.setVisible(true);
+
+        ContextMenu cmJuegos = new ContextMenu();
+        MenuItem ver = new MenuItem("ver");
+        MenuItem editar = new MenuItem("editar");
+        MenuItem eliminar = new MenuItem("eliminar");
+        cmJuegos.getItems().addAll(ver, editar, eliminar);
+        tablaJuegos.setContextMenu(cmJuegos);
+
+        tablaJuegos.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
+            if (nuevoValor != null) {
+                eliminar.setOnAction(v -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Advertencia");
+                    alert.setHeaderText("¿Estás seguro de que deseas eliminar el juego?");
+                    alert.setContentText("El juego se eliminara para siempre");
+                    Optional<ButtonType> respuesta = alert.showAndWait();
+                    if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                        String sql = "DELETE FROM Juegos WHERE id_Juego=?";
+                        try {
+                            PreparedStatement ps = conexion.prepareStatement(sql);
+                            ps.setInt(1, nuevoValor.getId_juego());
+                            ps.executeUpdate();
+                            introducirJuegos();
+                            System.out.println("Se ha eliminado el juego con ID " + nuevoValor.getId_juego());
+                        } catch (SQLException exception) {
+                            System.out.println("Excepción: " + exception.getMessage());
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void cerrarVentana() {
         stageAñadir.setOnCloseRequest(event -> {
             event.consume();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -146,25 +302,25 @@ public class Controlador implements Initializable{
             alert.setContentText("Los cambios realizados no se guardarán.");
             Optional<ButtonType> respuesta = alert.showAndWait();
             if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
-                stageAñadir.close(); 
+                stageAñadir.close();
             }
         });
     }
-    
+
     @FXML
-    void añadirElemento(ActionEvent e) throws Exception{
-        if(tabla==1){
+    void añadirElemento(ActionEvent e) throws Exception {
+        if (tabla == 1) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCompras.fxml"));
             Parent root = loader.load();
             Scene scAñadir = new Scene(root);
             stageAñadir = new Stage();
-            stageAñadir.initModality(Modality.APPLICATION_MODAL); 
+            stageAñadir.initModality(Modality.APPLICATION_MODAL);
             stageAñadir.setResizable(false);
             stageAñadir.setScene(scAñadir);
             stageAñadir.setTitle("Añadir");
             stageAñadir.show();
             cerrarVentana();
-        }else if(tabla==2) {
+        } else if (tabla == 2) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCliente.fxml"));
             Parent root = loader.load();
             Scene scAñadircompra = new Scene(root);
@@ -175,7 +331,7 @@ public class Controlador implements Initializable{
             stageAñadir.setTitle("Añadir");
             stageAñadir.show();
             cerrarVentana();
-        }else{
+        } else {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirJuego.fxml"));
             Parent root = loader.load();
             Scene scAñadir = new Scene(root);
@@ -188,13 +344,16 @@ public class Controlador implements Initializable{
             cerrarVentana();
         }
     }
-    
+
     private void ocultarTodasLasTablas() {
         for (Node node : contenedorTablas.getChildren()) {
+
+            //node.toBack();
             node.setVisible(false);
         }
+
     }
-    
+
     private ObservableList<Cliente> obtenerClientesBD() {
         ObservableList<Cliente> clientes = FXCollections.observableArrayList();
         if (conexion != null) {
@@ -202,26 +361,26 @@ public class Controlador implements Initializable{
                     SELECT dni, nombre, telefono, email, socio
                     FROM Clientes
                     """;
-            try{
-            rs = st.executeQuery(sql);
-            while (rs.next()) {
-                 Cliente cliente = new Cliente(
-                    rs.getString("dni"),
-                    rs.getString("nombre"),
-                    rs.getString("email"),
-                    rs.getInt("telefono"),
-                    rs.getBoolean("socio")
-                );
-                clientes.add(cliente);
+            try {
+                rs = st.executeQuery(sql);
+                while (rs.next()) {
+                    Cliente cliente = new Cliente(
+                            rs.getString("dni"),
+                            rs.getString("nombre"),
+                            rs.getString("email"),
+                            rs.getInt("telefono"),
+                            rs.getBoolean("socio")
+                    );
+                    clientes.add(cliente);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return clientes;
+            return clientes;
         }
         return null;
     }
-    
+
     private ObservableList<Compras> obtenerComprasBD() {
         ObservableList<Compras> compras = FXCollections.observableArrayList();
         if (conexion != null) {
@@ -229,23 +388,24 @@ public class Controlador implements Initializable{
                     SELECT Fecha_Compra, dni, id_Juego
                     FROM Compras
                     """;
-            try{
-            rs = st.executeQuery(sql);
-            while (rs.next()) {
-                 Compras compra = new Compras(
-                    rs.getDate("Fecha_Compra"),
-                    rs.getString("dni"),
-                    rs.getInt("id_Juego")
-                );
-                compras.add(compra);
+            try {
+                rs = st.executeQuery(sql);
+                while (rs.next()) {
+                    Compras compra = new Compras(
+                            rs.getDate("Fecha_Compra"),
+                            rs.getString("dni"),
+                            rs.getInt("id_Juego")
+                    );
+                    compras.add(compra);
+                }
+            } catch (SQLException e) {
+                System.out.println("Excepción SQL: " + e.getMessage());
             }
-        } catch (SQLException e) {
-                System.out.println("Excepción SQL: "+e.getMessage());
-        }
-        return compras;
+            return compras;
         }
         return null;
     }
+
     private ObservableList<Juego> obtenerJuegosBD() {
         ObservableList<Juego> juegos = FXCollections.observableArrayList();
         if (conexion != null) {
@@ -253,28 +413,28 @@ public class Controlador implements Initializable{
                     SELECT id_Juego, Nombre, Descripcion, Plataforma, Imagen, Stock, Precio
                     FROM Juegos
                     """;
-            try{
+            try {
                 rs = st.executeQuery(sql);
                 while (rs.next()) {
-                     Juego juego = new Juego(
-                        rs.getInt("id_Juego"),
-                        rs.getString("Imagen"),
-                        rs.getString("Nombre"),
-                        rs.getString("Plataforma"),
-                        rs.getString("Descripcion"),
-                        rs.getInt("Stock"),
-                        rs.getDouble("Precio")
+                    Juego juego = new Juego(
+                            rs.getInt("id_Juego"),
+                            rs.getString("Imagen"),
+                            rs.getString("Nombre"),
+                            rs.getString("Plataforma"),
+                            rs.getString("Descripcion"),
+                            rs.getInt("Stock"),
+                            rs.getDouble("Precio")
                     );
                     juegos.add(juego);
                 }
             } catch (SQLException e) {
-                    System.out.println("Excepción SQL: "+e.getMessage());
+                System.out.println("Excepción SQL: " + e.getMessage());
             }
             return juegos;
         }
         return null;
     }
-    
+
     private void inicializarImagenes() {
         try {
             imgAñadir.setImage(new Image(getClass().getResourceAsStream("/imagenes/añadir.png")));
@@ -283,23 +443,21 @@ public class Controlador implements Initializable{
             imgJuegos.setImage(new Image(getClass().getResourceAsStream("/imagenes/juegos.png")));
         } catch (Exception e) {
             System.out.println("Error al cargar las imágenes: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    
     @FXML
     void salir(ActionEvent event) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Advertencia");
-            alert.setHeaderText("¿Estás seguro de que deseas cerrar la ventana?");
-            alert.setContentText("Los cambios realizados no se guardarán.");
-            Optional<ButtonType> respuesta = alert.showAndWait();
-            if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
-                System.exit(0);
-            }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Advertencia");
+        alert.setHeaderText("¿Estás seguro de que deseas cerrar la ventana?");
+        alert.setContentText("Los cambios realizados se guardarán.");
+        Optional<ButtonType> respuesta = alert.showAndWait();
+        if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+            System.exit(0);
+        }
     }
-    
+
     private SimpleObjectProperty<ImageView> cargarImagen(String url) {
         try {
             if (url == null || url.isEmpty()) {
@@ -320,8 +478,9 @@ public class Controlador implements Initializable{
             return new SimpleObjectProperty<>(errorImageView);
         }
     }
+
     public Connection getConnection() throws IOException {
-        
+
         Properties properties = new Properties();
         String IP, PORT, BBDD, USER, PWD;
         try {
@@ -338,9 +497,9 @@ public class Controlador implements Initializable{
             System.out.println("No se pudo encontrar el archivo de propiedades");
             return null;
         } else {
-            
+
             properties.load(input);
-           
+
             PORT = (String) properties.get("PORT");
             BBDD = (String) properties.get("BBDD");
             USER = (String) properties.get("USER");//USER de MARIADB en LAMP 
@@ -365,11 +524,40 @@ public class Controlador implements Initializable{
             }
         }
     }
+
+    private void introducirClientes() {
+        dni.setCellValueFactory(new PropertyValueFactory<>("dni"));
+        nombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        email.setCellValueFactory(new PropertyValueFactory<>("email"));
+        telefono.setCellValueFactory(new PropertyValueFactory<>("telefono"));
+        socio.setCellValueFactory(new PropertyValueFactory<>("socio"));
+        tablaClientes.setItems(obtenerClientesBD());
+    }
+
+    private void introducirCompras() {
+        fecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
+        cliente.setCellValueFactory(new PropertyValueFactory<>("dni"));
+        idJuego.setCellValueFactory(new PropertyValueFactory<>("idjuego"));
+        tablaCompras.setItems(obtenerComprasBD());
+    }
+
+    private void introducirJuegos() {
+        id.setCellValueFactory(new PropertyValueFactory<>("id_juego"));
+        imagenJuego.setCellValueFactory(cellData -> {
+            return cargarImagen(cellData.getValue().getImagen());
+        });
+        nombrejuego.setCellValueFactory(new PropertyValueFactory<>("Nombre"));
+        plataforma.setCellValueFactory(new PropertyValueFactory<>("Plataforma"));
+        descripcion.setCellValueFactory(new PropertyValueFactory<>("Descripcion"));
+        precio.setCellValueFactory(new PropertyValueFactory<>("Precio"));
+        stock.setCellValueFactory(new PropertyValueFactory<>("Stock"));
+        tablaJuegos.setItems(obtenerJuegosBD());
+    }
     
     
     @Override
-    public void initialize(URL url, ResourceBundle rb) { 
-        try{
+    public void initialize(URL url, ResourceBundle rb) {
+        try {
             conexion = this.getConnection();
             if (conexion != null) {
                 this.st = conexion.createStatement();
@@ -377,33 +565,11 @@ public class Controlador implements Initializable{
         } catch (IOException | SQLException e) {
         }
         if (conexion != null) {
-        dni.setCellValueFactory(new PropertyValueFactory<>("dni"));
-        nombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        email.setCellValueFactory(new PropertyValueFactory<>("email"));
-        telefono.setCellValueFactory(new PropertyValueFactory<>("telefono"));
-        socio.setCellValueFactory(new PropertyValueFactory<>("socio"));
-        tablaClientes.setItems(obtenerClientesBD());
-        
-        fecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
-        cliente.setCellValueFactory(new PropertyValueFactory<>("dni"));
-        idJuego.setCellValueFactory(new PropertyValueFactory<>("idjuego"));
-        tablaCompras.setItems(obtenerComprasBD());
-       
-        id.setCellValueFactory(new PropertyValueFactory<>("id_juego"));
-        imagenJuego.setCellValueFactory(cellData -> { 
-            return cargarImagen(cellData.getValue().getImagen());
-        });
-        
-        nombrejuego.setCellValueFactory(new PropertyValueFactory<>("Nombre"));
-        plataforma.setCellValueFactory(new PropertyValueFactory<>("Plataforma"));
-        descripcion.setCellValueFactory(new PropertyValueFactory<>("Descripcion"));
-        precio.setCellValueFactory(new PropertyValueFactory<>("Precio"));
-        stock.setCellValueFactory(new PropertyValueFactory<>("Stock"));
-        tablaJuegos.setItems(obtenerJuegosBD());
-        
-        inicializarImagenes();
-        
-        }  
+            introducirClientes();
+            introducirCompras();
+            introducirJuegos();
+            ocultar();
+            inicializarImagenes();
+        }
     }
-    
 }
