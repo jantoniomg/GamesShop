@@ -3,8 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package controladores;
+
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -18,12 +20,16 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+
 /**
  *
  * @author Juanan
  */
-public class controladorAñadirCliente implements Initializable{
-    
+public class controladorAñadirCliente implements Initializable {
+
+    private Controlador controladorst;
+    Connection conexion;
+
     @FXML
     private Button btnAceptar;
 
@@ -44,22 +50,25 @@ public class controladorAñadirCliente implements Initializable{
 
     @FXML
     private TextField ftTelefono;
-    
+
     @FXML
     void aceptar(ActionEvent event) {
-        /*
+        
         String query = "INSERT INTO Clientes VALUES (?, ?, ?, ?, ?)";
         try {
+            Connection conexion = controladorst.getConnection();
             PreparedStatement preparedStatement = conexion.prepareStatement(query);
             preparedStatement.setString(1, ftDni.getText());
-            preparedStatement.setString(3, ftNombre.getText());
-            preparedStatement.setString(2, ftEmail.getText());
-            preparedStatement.setInt(5, Integer.parseInt(chbSocio.getText()));
+            preparedStatement.setString(2, ftNombre.getText());
+            preparedStatement.setString(3, ftTelefono.getText());
+            preparedStatement.setString(4, ftEmail.getText());
+            int socio = chbSocio.isSelected() ? 1 : 0;
+            preparedStatement.setInt(5, socio);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Excepción: "+e.getMessage());
-        }*/
-        
+        } catch (SQLException | IOException e) {
+            System.out.println("Excepción: " + e.getMessage());
+        }
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Adevertencia");
         alert.setHeaderText("¿Estás seguro de que deseas ACEPTAR la operación?");
@@ -69,6 +78,7 @@ public class controladorAñadirCliente implements Initializable{
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             Stage stage = (Stage) btnCancelar.getScene().getWindow();
+            controladorst.introducirClientes();
             stage.close();
         }
     }
@@ -84,11 +94,16 @@ public class controladorAñadirCliente implements Initializable{
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             Stage stage = (Stage) btnCancelar.getScene().getWindow();
-            stage.close(); 
+            stage.close();
         }
     }
-    
+
+    public void setControladorEnlace(Controlador control) {
+            this.controladorst = control;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
     }
 }

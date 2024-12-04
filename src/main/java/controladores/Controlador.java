@@ -51,6 +51,11 @@ import javafx.stage.Stage;
  */
 public class Controlador implements Initializable {
 
+    private controladorAñadirCliente conAñadirCliente;
+    private controladorAñadirJuego conAñadirJuego;
+    private controladorAñadirCompra conAñadirCompra;
+    private ObservableList<Cliente> clientes;
+    
     Stage stageAñadir;
     Connection conexion;
     Statement st;
@@ -148,7 +153,8 @@ public class Controlador implements Initializable {
         ocultarTodasLasTablas();
         paneCompras.setVisible(true);
         tablaCompras.setVisible(true);
-
+        eliminar.setVisible(true);
+        actualizar.setVisible(true);
         ContextMenu cmCompras = new ContextMenu();
         MenuItem ver = new MenuItem("ver");
         MenuItem editar = new MenuItem("editar");
@@ -180,17 +186,19 @@ public class Controlador implements Initializable {
             }
         });
     }
-
+    void botonesInvisibles(){
+        eliminar.setVisible(false);
+        actualizar.setVisible(false);
+    }
     @FXML
     void actualizarCompra(ActionEvent event) {
-
+        
     }
 
     @FXML
     void eliminarCompra(ActionEvent event) {
-        if (!tablaCompras.isVisible()) {
-            eliminar.setVisible(false);
-        }
+        botonesInvisibles();
+        
         Compras compra = tablaCompras.getSelectionModel().getSelectedItem();
         if (compra != null) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -217,11 +225,13 @@ public class Controlador implements Initializable {
 
     @FXML
     void abrirVentanaClientes(ActionEvent event) {
+        botonesInvisibles();
+        
         tabla = 2;
         ocultarTodasLasTablas();
         paneClientes.setVisible(true);
         tablaClientes.setVisible(true);
-
+        
         ContextMenu cmClientes = new ContextMenu();
         MenuItem ver = new MenuItem("ver");
         MenuItem editar = new MenuItem("editar");
@@ -267,7 +277,6 @@ public class Controlador implements Initializable {
         MenuItem eliminar = new MenuItem("eliminar");
         cmJuegos.getItems().addAll(ver, editar, eliminar);
         tablaJuegos.setContextMenu(cmJuegos);
-
         tablaJuegos.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
             if (nuevoValor != null) {
                 eliminar.setOnAction(v -> {
@@ -292,7 +301,7 @@ public class Controlador implements Initializable {
             }
         });
     }
-
+    
     private void cerrarVentana() {
         stageAñadir.setOnCloseRequest(event -> {
             event.consume();
@@ -307,39 +316,57 @@ public class Controlador implements Initializable {
         });
     }
 
+    void controladorAcontroladorCliente(Cliente cli) {
+        tablaClientes.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
+            if (nuevoValor != null) {
+                Cliente cl = new Cliente(nuevoValor.getDni(), nuevoValor.getNombre(), nuevoValor.getTelefono(), nuevoValor.getEmail(), nuevoValor.getSocio());
+            }
+        });
+    }
+
     @FXML
     void añadirElemento(ActionEvent e) throws Exception {
         if (tabla == 1) {
+            System.out.println("ENTRANDO EN COMPRAS");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCompras.fxml"));
             Parent root = loader.load();
-            Scene scAñadir = new Scene(root);
+            conAñadirCompra = loader.getController();
+            System.out.println("hola"+this);
+            conAñadirCompra.setControladorEnlace(this);
+            Scene scAñadirCompra = new Scene(root);
             stageAñadir = new Stage();
             stageAñadir.initModality(Modality.APPLICATION_MODAL);
             stageAñadir.setResizable(false);
-            stageAñadir.setScene(scAñadir);
-            stageAñadir.setTitle("Añadir");
+            stageAñadir.setScene(scAñadirCompra);
+            stageAñadir.setTitle("Añadir Compra");
             stageAñadir.show();
             cerrarVentana();
+
         } else if (tabla == 2) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCliente.fxml"));
             Parent root = loader.load();
-            Scene scAñadircompra = new Scene(root);
+            conAñadirCliente = loader.getController();
+            conAñadirCliente.setControladorEnlace(this);
+            Scene scAñadirCliente = new Scene(root);
             stageAñadir = new Stage();
             stageAñadir.initModality(Modality.APPLICATION_MODAL);
             stageAñadir.setResizable(false);
-            stageAñadir.setScene(scAñadircompra);
-            stageAñadir.setTitle("Añadir");
+            stageAñadir.setScene(scAñadirCliente);
+            stageAñadir.setTitle("Añadir Cliente");
             stageAñadir.show();
             cerrarVentana();
+
         } else {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirJuego.fxml"));
             Parent root = loader.load();
-            Scene scAñadir = new Scene(root);
+            conAñadirJuego = loader.getController();
+            conAñadirJuego.setControladorEnlace(this);
+            Scene scAñadirJuego = new Scene(root);
             stageAñadir = new Stage();
             stageAñadir.initModality(Modality.APPLICATION_MODAL);
             stageAñadir.setResizable(false);
-            stageAñadir.setScene(scAñadir);
-            stageAñadir.setTitle("Añadir");
+            stageAñadir.setScene(scAñadirJuego);
+            stageAñadir.setTitle("Añadir Juego");
             stageAñadir.show();
             cerrarVentana();
         }
@@ -354,8 +381,9 @@ public class Controlador implements Initializable {
 
     }
 
-    private ObservableList<Cliente> obtenerClientesBD() {
-        ObservableList<Cliente> clientes = FXCollections.observableArrayList();
+    public ObservableList<Cliente> obtenerClientesBD() {
+        System.out.println("CLIENTES");
+        clientes = FXCollections.observableArrayList();
         if (conexion != null) {
             String sql = """
                     SELECT dni, nombre, telefono, email, socio
@@ -367,8 +395,8 @@ public class Controlador implements Initializable {
                     Cliente cliente = new Cliente(
                             rs.getString("dni"),
                             rs.getString("nombre"),
-                            rs.getString("email"),
                             rs.getInt("telefono"),
+                            rs.getString("email"),
                             rs.getBoolean("socio")
                     );
                     clientes.add(cliente);
@@ -381,7 +409,7 @@ public class Controlador implements Initializable {
         return null;
     }
 
-    private ObservableList<Compras> obtenerComprasBD() {
+    public ObservableList<Compras> obtenerComprasBD() {
         ObservableList<Compras> compras = FXCollections.observableArrayList();
         if (conexion != null) {
             String sql = """
@@ -406,7 +434,7 @@ public class Controlador implements Initializable {
         return null;
     }
 
-    private ObservableList<Juego> obtenerJuegosBD() {
+    public  ObservableList<Juego> obtenerJuegosBD() {
         ObservableList<Juego> juegos = FXCollections.observableArrayList();
         if (conexion != null) {
             String sql = """
@@ -492,7 +520,7 @@ public class Controlador implements Initializable {
             IP = "localhost";
         }
 
-        InputStream input = getClass().getClassLoader().getResourceAsStream("bbdd.properties");
+        InputStream input = Controlador.class.getClassLoader().getResourceAsStream("bbdd.properties");
         if (input == null) {
             System.out.println("No se pudo encontrar el archivo de propiedades");
             return null;
@@ -525,7 +553,7 @@ public class Controlador implements Initializable {
         }
     }
 
-    private void introducirClientes() {
+    void introducirClientes() {
         dni.setCellValueFactory(new PropertyValueFactory<>("dni"));
         nombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         email.setCellValueFactory(new PropertyValueFactory<>("email"));
@@ -534,14 +562,14 @@ public class Controlador implements Initializable {
         tablaClientes.setItems(obtenerClientesBD());
     }
 
-    private void introducirCompras() {
+    void introducirCompras() {
         fecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         cliente.setCellValueFactory(new PropertyValueFactory<>("dni"));
         idJuego.setCellValueFactory(new PropertyValueFactory<>("idjuego"));
         tablaCompras.setItems(obtenerComprasBD());
     }
 
-    private void introducirJuegos() {
+    void introducirJuegos() {
         id.setCellValueFactory(new PropertyValueFactory<>("id_juego"));
         imagenJuego.setCellValueFactory(cellData -> {
             return cargarImagen(cellData.getValue().getImagen());
@@ -553,8 +581,7 @@ public class Controlador implements Initializable {
         stock.setCellValueFactory(new PropertyValueFactory<>("Stock"));
         tablaJuegos.setItems(obtenerJuegosBD());
     }
-    
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {

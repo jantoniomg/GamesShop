@@ -70,7 +70,7 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\GamesShop.jar;%APP_HOME%\lib\mysql-connector-java-8.0.30.jar;%APP_HOME%\lib\javafx-fxml-23-win.jar;%APP_HOME%\lib\javafx-web-23-win.jar;%APP_HOME%\lib\javafx-controls-23-win.jar;%APP_HOME%\lib\javafx-media-23-win.jar;%APP_HOME%\lib\javafx-swing-23-win.jar;%APP_HOME%\lib\javafx-graphics-23-win.jar;%APP_HOME%\lib\javafx-base-23-win.jar;%APP_HOME%\lib\protobuf-java-3.19.4.jar
+set CLASSPATH=%APP_HOME%\lib\GamesShop.jar;%APP_HOME%\lib\mysql-connector-java-8.0.30.jar;%APP_HOME%\lib\controlsfx-11.2.1.jar;%APP_HOME%\lib\javafx-fxml-23-win.jar;%APP_HOME%\lib\javafx-web-23-win.jar;%APP_HOME%\lib\javafx-controls-23-win.jar;%APP_HOME%\lib\javafx-media-23-win.jar;%APP_HOME%\lib\javafx-swing-23-win.jar;%APP_HOME%\lib\javafx-graphics-23-win.jar;%APP_HOME%\lib\javafx-base-23-win.jar;%APP_HOME%\lib\protobuf-java-3.19.4.jar
 
 
 @rem Execute GamesShop

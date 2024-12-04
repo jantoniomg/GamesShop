@@ -8,11 +8,11 @@ public class Cliente {
     Integer telefono;
     Boolean socio;
     
-    public Cliente(String dni, String nombre, String email, Integer telefono, Boolean socio){
+    public Cliente(String dni, String nombre, Integer telefono, String email, Boolean socio){
         this.dni=dni;
         this.nombre=nombre;
-        this.email=email;
         this.telefono=telefono;
+        this.email=email;
         this.socio=socio;
     }
 
