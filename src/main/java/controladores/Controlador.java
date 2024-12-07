@@ -51,15 +51,25 @@ import javafx.stage.Stage;
  */
 public class Controlador implements Initializable {
 
+    private FXMLLoader loader;
     private controladorAñadirCliente conAñadirCliente;
     private controladorAñadirJuego conAñadirJuego;
     private controladorAñadirCompra conAñadirCompra;
     private ObservableList<Cliente> clientes;
-    
+    private ObservableList<Compras> compras;
+    private ObservableList<Juego> juegos;
+
+    boolean editrarBool;
+    Juego juegoGuardado;
+    Cliente clienteGuardado;
+    Compras compraGuardada;
+
     Stage stageAñadir;
     Connection conexion;
     Statement st;
     ResultSet rs;
+
+    Integer tabla = 1;
 
     @FXML
     private ImageView imgAñadir;
@@ -136,9 +146,37 @@ public class Controlador implements Initializable {
     private TableColumn<Juego, Double> precio;
     @FXML
     private TableColumn<Juego, Integer> stock;
+    
+    //Se utiliza para inicializar las imagenes que se usan en la aplicacion al iniciarse
+    private void inicializarImagenes() {
+        try {
+            imgAñadir.setImage(new Image(getClass().getResourceAsStream("/imagenes/añadir.png")));
+            imgClientes.setImage(new Image(getClass().getResourceAsStream("/imagenes/clientes.png")));
+            imgCompra.setImage(new Image(getClass().getResourceAsStream("/imagenes/compra.png")));
+            imgJuegos.setImage(new Image(getClass().getResourceAsStream("/imagenes/juegos.png")));
+        } catch (Exception e) {
+            System.out.println("Error al cargar las imágenes: " + e.getMessage());
+        }
+    }
+    
+    //Se utilizan para poder usar la funcion de editar
+    public Boolean editando() {
+        return editrarBool;
+    }
 
-    Integer tabla = 1;
+    public Compras dameCompra() {
+        return compraGuardada;
+    }
 
+    public Cliente dameCliente() {
+        return clienteGuardado;
+    }
+
+    public Juego dameJuego() {
+        return juegoGuardado;
+    }
+
+    //se usa para ocultar todas las tablas y solo mostrar la de compras esto se usa al iniciar la app
     private void ocultar() {
         for (Node node : contenedorTablas.getChildren()) {
             node.setVisible(false);
@@ -147,58 +185,89 @@ public class Controlador implements Initializable {
         tablaCompras.setVisible(true);
     }
 
-    @FXML
-    void abrirVentanaCompras(ActionEvent event) {
-        tabla = 1;
-        ocultarTodasLasTablas();
-        paneCompras.setVisible(true);
-        tablaCompras.setVisible(true);
-        eliminar.setVisible(true);
-        actualizar.setVisible(true);
-        ContextMenu cmCompras = new ContextMenu();
-        MenuItem ver = new MenuItem("ver");
-        MenuItem editar = new MenuItem("editar");
-        MenuItem eliminar = new MenuItem("eliminar");
-        cmCompras.getItems().addAll(ver, editar, eliminar);
-        tablaCompras.setContextMenu(cmCompras);
-
-        tablaCompras.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
-            if (nuevoValor != null) {
-                eliminar.setOnAction(v -> {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Advertencia");
-                    alert.setHeaderText("¿Estás seguro que deseas eliminar la compra?");
-                    alert.setContentText("La compra se eliminara para siempre");
-                    Optional<ButtonType> respuesta = alert.showAndWait();
-                    if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
-                        String sql = "DELETE FROM Compras WHERE Fecha_Compra=?";
-                        try {
-                            PreparedStatement ps = conexion.prepareStatement(sql);
-                            ps.setDate(1, new java.sql.Date(nuevoValor.getFecha().getTime()));
-                            ps.executeUpdate();
-                            introducirCompras();
-                            System.out.println("Se ha eliminado la compra del " + nuevoValor.getFecha());
-                        } catch (SQLException exception) {
-                            System.out.println("Excepción: " + exception.getMessage());
-                        }
-                    }
-                });
+    //Se usa para cuando se va a cerrar una ventana
+    private void cerrarVentana() {
+        stageAñadir.setOnCloseRequest(event -> {
+            event.consume();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Advertencia");
+            alert.setHeaderText("¿Estás seguro de que deseas cerrar la ventana?");
+            alert.setContentText("Los cambios realizados no se guardarán.");
+            Optional<ButtonType> respuesta = alert.showAndWait();
+            if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                stageAñadir.close();
             }
         });
     }
-    void botonesInvisibles(){
-        eliminar.setVisible(false);
-        actualizar.setVisible(false);
+
+    //Abrir ventanas que se usan tanto para añadir como para editar
+    public void abrirAñadirCompras(String titulo) throws Exception {
+        loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCompras.fxml"));
+        Parent root = loader.load();
+        conAñadirCompra = loader.getController();
+        conAñadirCompra.setControladorEnlace(this);
+        Scene scAñadirCompra = new Scene(root);
+        stageAñadir = new Stage();
+        stageAñadir.initModality(Modality.APPLICATION_MODAL);
+        stageAñadir.setResizable(false);
+        stageAñadir.setScene(scAñadirCompra);
+        stageAñadir.setTitle(titulo);
+        stageAñadir.show();
+        cerrarVentana();
     }
+
+    public void abrirAñadirCliente(String titulo) throws Exception {
+        loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCliente.fxml"));
+        Parent root = loader.load();
+        conAñadirCliente = loader.getController();
+        conAñadirCliente.setControladorEnlace(this);
+        Scene scAñadirCliente = new Scene(root);
+        stageAñadir = new Stage();
+        stageAñadir.initModality(Modality.APPLICATION_MODAL);
+        stageAñadir.setResizable(false);
+        stageAñadir.setScene(scAñadirCliente);
+        stageAñadir.setTitle(titulo);
+        stageAñadir.show();
+        cerrarVentana();
+    }
+
+    public void abrirAñadirJuego(String titulo) throws Exception {
+        loader = new FXMLLoader(getClass().getResource("../ventanas/añadirJuego.fxml"));
+        Parent root = loader.load();
+        conAñadirJuego = loader.getController();
+        conAñadirJuego.setControladorEnlace(this);
+        Scene scAñadirJuego = new Scene(root);
+        stageAñadir = new Stage();
+        stageAñadir.initModality(Modality.APPLICATION_MODAL);
+        stageAñadir.setResizable(false);
+        stageAñadir.setScene(scAñadirJuego);
+        stageAñadir.setTitle(titulo);
+        stageAñadir.show();
+        cerrarVentana();
+    }
+
+    //se usa para ocultar las tablas
+    private void ocultarTodasLasTablas() {
+        for (Node node : contenedorTablas.getChildren()) {
+            node.setVisible(false);
+        }
+    }
+
+    //Ya que el context menu de la tabla compras falla tenemos estos botones auxiliares que solo se muestran en compras
     @FXML
-    void actualizarCompra(ActionEvent event) {
-        
+    void actualizarCompra(ActionEvent event) throws Exception {
+        Compras compra = tablaCompras.getSelectionModel().getSelectedItem();
+        if (compra != null) {
+            editrarBool = true;
+            compraGuardada = compra;
+            abrirAñadirCompras("Editar Compra");
+        } else {
+            System.out.println("Selecciona una Compra para actualizarla");
+        }
     }
 
     @FXML
     void eliminarCompra(ActionEvent event) {
-        botonesInvisibles();
-        
         Compras compra = tablaCompras.getSelectionModel().getSelectedItem();
         if (compra != null) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -223,24 +292,92 @@ public class Controlador implements Initializable {
         }
     }
 
+    //se usa para ocultar o mostrar los dos botones anteriores
+    void botonesVisibles() {
+        eliminar.setVisible(true);
+        actualizar.setVisible(true);
+    }
+
+    void botonesInvisibles() {
+        eliminar.setVisible(false);
+        actualizar.setVisible(false);
+    }
+
+    //botones que abren las "ventanas" de juegos, compras y clientes.
+    //Cuando se le da al boton muestra la tabla y las opciones correspondientes  
+    @FXML
+    void abrirVentanaCompras(ActionEvent event) {
+        tabla = 1;
+        ocultarTodasLasTablas();
+        paneCompras.setVisible(true);
+        tablaCompras.setVisible(true);
+        botonesVisibles();
+        
+        ContextMenu cmCompras = new ContextMenu();
+        MenuItem ver = new MenuItem("ver");
+        MenuItem editar = new MenuItem("editar");
+        MenuItem eliminar = new MenuItem("eliminar");
+        cmCompras.getItems().addAll(ver, editar, eliminar);
+        tablaCompras.setContextMenu(cmCompras);
+        tablaCompras.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
+            if (nuevoValor != null) {
+                editar.setOnAction(a -> {
+                    try {
+                        editrarBool = true;
+                        compraGuardada = nuevoValor;
+                        abrirAñadirCompras("Editar Compra");
+                    } catch (Exception e) {
+                        System.out.println("Excepción: " + e.getMessage());
+                    }
+                });
+                eliminar.setOnAction(v -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Advertencia");
+                    alert.setHeaderText("¿Estás seguro que deseas eliminar la compra?");
+                    alert.setContentText("La compra se eliminara para siempre");
+                    Optional<ButtonType> respuesta = alert.showAndWait();
+                    if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
+                        String sql = "DELETE FROM Compras WHERE Fecha_Compra=?";
+                        try {
+                            PreparedStatement ps = conexion.prepareStatement(sql);
+                            ps.setDate(1, new java.sql.Date(nuevoValor.getFecha().getTime()));
+                            ps.executeUpdate();
+                            introducirCompras();
+                            System.out.println("Se ha eliminado la compra del " + nuevoValor.getFecha());
+                        } catch (SQLException exception) {
+                            System.out.println("Excepción: " + exception.getMessage());
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     @FXML
     void abrirVentanaClientes(ActionEvent event) {
         botonesInvisibles();
-        
         tabla = 2;
         ocultarTodasLasTablas();
         paneClientes.setVisible(true);
         tablaClientes.setVisible(true);
-        
+
         ContextMenu cmClientes = new ContextMenu();
         MenuItem ver = new MenuItem("ver");
         MenuItem editar = new MenuItem("editar");
         MenuItem eliminar = new MenuItem("eliminar");
         cmClientes.getItems().addAll(ver, editar, eliminar);
         tablaClientes.setContextMenu(cmClientes);
-
         tablaClientes.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
             if (nuevoValor != null) {
+                editar.setOnAction(a -> {
+                    try {
+                        editrarBool = true;
+                        clienteGuardado = nuevoValor;
+                        abrirAñadirCliente("Editar Cliente");
+                    } catch (Exception e) {
+                        System.out.println("Excepción: " + e.getMessage());
+                    }
+                });
                 eliminar.setOnAction(v -> {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Advertencia");
@@ -265,12 +402,12 @@ public class Controlador implements Initializable {
     }
 
     @FXML
-    void abrirVentanaJuegos(ActionEvent event) {
+    void abrirVentanaJuegos(ActionEvent event) throws Exception {
         tabla = 3;
         ocultarTodasLasTablas();
         paneJuegos.setVisible(true);
         tablaJuegos.setVisible(true);
-
+        
         ContextMenu cmJuegos = new ContextMenu();
         MenuItem ver = new MenuItem("ver");
         MenuItem editar = new MenuItem("editar");
@@ -279,6 +416,15 @@ public class Controlador implements Initializable {
         tablaJuegos.setContextMenu(cmJuegos);
         tablaJuegos.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
             if (nuevoValor != null) {
+                editar.setOnAction(a -> {
+                    try {
+                        editrarBool = true;
+                        juegoGuardado = nuevoValor;
+                        abrirAñadirJuego("Editar juego");
+                    } catch (Exception e) {
+                        System.out.println("Excepción: " + e.getMessage());
+                    }
+                });
                 eliminar.setOnAction(v -> {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Advertencia");
@@ -294,6 +440,7 @@ public class Controlador implements Initializable {
                             introducirJuegos();
                             System.out.println("Se ha eliminado el juego con ID " + nuevoValor.getId_juego());
                         } catch (SQLException exception) {
+                            System.out.println("No se ha podido eliminar poque tiene compras");
                             System.out.println("Excepción: " + exception.getMessage());
                         }
                     }
@@ -301,88 +448,52 @@ public class Controlador implements Initializable {
             }
         });
     }
-    
-    private void cerrarVentana() {
-        stageAñadir.setOnCloseRequest(event -> {
-            event.consume();
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Advertencia");
-            alert.setHeaderText("¿Estás seguro de que deseas cerrar la ventana?");
-            alert.setContentText("Los cambios realizados no se guardarán.");
-            Optional<ButtonType> respuesta = alert.showAndWait();
-            if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
-                stageAñadir.close();
-            }
-        });
-    }
 
-    void controladorAcontroladorCliente(Cliente cli) {
-        tablaClientes.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
-            if (nuevoValor != null) {
-                Cliente cl = new Cliente(nuevoValor.getDni(), nuevoValor.getNombre(), nuevoValor.getTelefono(), nuevoValor.getEmail(), nuevoValor.getSocio());
-            }
-        });
-    }
-
+    //Se usa para abrir la ventana de añadir segun la tabla que se esta mostrando
     @FXML
     void añadirElemento(ActionEvent e) throws Exception {
         if (tabla == 1) {
-            System.out.println("ENTRANDO EN COMPRAS");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCompras.fxml"));
-            Parent root = loader.load();
-            conAñadirCompra = loader.getController();
-            System.out.println("hola"+this);
-            conAñadirCompra.setControladorEnlace(this);
-            Scene scAñadirCompra = new Scene(root);
-            stageAñadir = new Stage();
-            stageAñadir.initModality(Modality.APPLICATION_MODAL);
-            stageAñadir.setResizable(false);
-            stageAñadir.setScene(scAñadirCompra);
-            stageAñadir.setTitle("Añadir Compra");
-            stageAñadir.show();
-            cerrarVentana();
+            editrarBool = false;
+            abrirAñadirCompras("Añadir Compra");
 
         } else if (tabla == 2) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirCliente.fxml"));
-            Parent root = loader.load();
-            conAñadirCliente = loader.getController();
-            conAñadirCliente.setControladorEnlace(this);
-            Scene scAñadirCliente = new Scene(root);
-            stageAñadir = new Stage();
-            stageAñadir.initModality(Modality.APPLICATION_MODAL);
-            stageAñadir.setResizable(false);
-            stageAñadir.setScene(scAñadirCliente);
-            stageAñadir.setTitle("Añadir Cliente");
-            stageAñadir.show();
-            cerrarVentana();
+            editrarBool = false;
+            abrirAñadirCliente("Añadir Cliente");
 
         } else {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../ventanas/añadirJuego.fxml"));
-            Parent root = loader.load();
-            conAñadirJuego = loader.getController();
-            conAñadirJuego.setControladorEnlace(this);
-            Scene scAñadirJuego = new Scene(root);
-            stageAñadir = new Stage();
-            stageAñadir.initModality(Modality.APPLICATION_MODAL);
-            stageAñadir.setResizable(false);
-            stageAñadir.setScene(scAñadirJuego);
-            stageAñadir.setTitle("Añadir Juego");
-            stageAñadir.show();
-            cerrarVentana();
+            editrarBool = false;
+            abrirAñadirJuego("Añadir Juego");
         }
     }
-
-    private void ocultarTodasLasTablas() {
-        for (Node node : contenedorTablas.getChildren()) {
-
-            //node.toBack();
-            node.setVisible(false);
+    
+    //Se usan para sacar los datos de cada tabla de la base de datos 
+    //y rellenar una lista de esos objetos para utilizarlos mas a delante
+    public ObservableList<Compras> obtenerComprasBD() {
+        compras = FXCollections.observableArrayList();
+        if (conexion != null) {
+            String sql = """
+                    SELECT Fecha_Compra, dni, id_Juego
+                    FROM Compras
+                    """;
+            try {
+                rs = st.executeQuery(sql);
+                while (rs.next()) {
+                    Compras compra = new Compras(
+                            rs.getDate("Fecha_Compra"),
+                            rs.getString("dni"),
+                            rs.getInt("id_Juego")
+                    );
+                    compras.add(compra);
+                }
+            } catch (SQLException e) {
+                System.out.println("Excepción SQL: " + e.getMessage());
+            }
+            return compras;
         }
-
+        return null;
     }
 
     public ObservableList<Cliente> obtenerClientesBD() {
-        System.out.println("CLIENTES");
         clientes = FXCollections.observableArrayList();
         if (conexion != null) {
             String sql = """
@@ -409,33 +520,8 @@ public class Controlador implements Initializable {
         return null;
     }
 
-    public ObservableList<Compras> obtenerComprasBD() {
-        ObservableList<Compras> compras = FXCollections.observableArrayList();
-        if (conexion != null) {
-            String sql = """
-                    SELECT Fecha_Compra, dni, id_Juego
-                    FROM Compras
-                    """;
-            try {
-                rs = st.executeQuery(sql);
-                while (rs.next()) {
-                    Compras compra = new Compras(
-                            rs.getDate("Fecha_Compra"),
-                            rs.getString("dni"),
-                            rs.getInt("id_Juego")
-                    );
-                    compras.add(compra);
-                }
-            } catch (SQLException e) {
-                System.out.println("Excepción SQL: " + e.getMessage());
-            }
-            return compras;
-        }
-        return null;
-    }
-
-    public  ObservableList<Juego> obtenerJuegosBD() {
-        ObservableList<Juego> juegos = FXCollections.observableArrayList();
+    public ObservableList<Juego> obtenerJuegosBD() {
+        juegos = FXCollections.observableArrayList();
         if (conexion != null) {
             String sql = """
                     SELECT id_Juego, Nombre, Descripcion, Plataforma, Imagen, Stock, Precio
@@ -462,18 +548,7 @@ public class Controlador implements Initializable {
         }
         return null;
     }
-
-    private void inicializarImagenes() {
-        try {
-            imgAñadir.setImage(new Image(getClass().getResourceAsStream("/imagenes/añadir.png")));
-            imgClientes.setImage(new Image(getClass().getResourceAsStream("/imagenes/clientes.png")));
-            imgCompra.setImage(new Image(getClass().getResourceAsStream("/imagenes/compra.png")));
-            imgJuegos.setImage(new Image(getClass().getResourceAsStream("/imagenes/juegos.png")));
-        } catch (Exception e) {
-            System.out.println("Error al cargar las imágenes: " + e.getMessage());
-        }
-    }
-
+    //boton para salir de la app
     @FXML
     void salir(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -485,19 +560,17 @@ public class Controlador implements Initializable {
             System.exit(0);
         }
     }
-
+    //carga la imagen en la tabla
     private SimpleObjectProperty<ImageView> cargarImagen(String url) {
         try {
             if (url == null || url.isEmpty()) {
                 throw new IllegalArgumentException("URL no válida");
             }
-
             Image image = new Image(url);
             ImageView imageView = new ImageView(image);
             imageView.setFitHeight(50);
             imageView.setFitWidth(50);
             return new SimpleObjectProperty<>(imageView);
-
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             ImageView errorImageView = new ImageView(new Image("./prueba.jpg"));

@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,7 +20,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import modelos.Cliente;
+import modelos.Juego;
 
 /**
  *
@@ -29,6 +33,7 @@ public class controladorAñadirCliente implements Initializable {
 
     private Controlador controladorst;
     Connection conexion;
+    PreparedStatement ps;
 
     @FXML
     private Button btnAceptar;
@@ -51,24 +56,43 @@ public class controladorAñadirCliente implements Initializable {
     @FXML
     private TextField ftTelefono;
 
-    @FXML
-    void aceptar(ActionEvent event) {
-        
-        String query = "INSERT INTO Clientes VALUES (?, ?, ?, ?, ?)";
-        try {
-            Connection conexion = controladorst.getConnection();
-            PreparedStatement preparedStatement = conexion.prepareStatement(query);
-            preparedStatement.setString(1, ftDni.getText());
-            preparedStatement.setString(2, ftNombre.getText());
-            preparedStatement.setString(3, ftTelefono.getText());
-            preparedStatement.setString(4, ftEmail.getText());
-            int socio = chbSocio.isSelected() ? 1 : 0;
-            preparedStatement.setInt(5, socio);
-            preparedStatement.executeUpdate();
-        } catch (SQLException | IOException e) {
-            System.out.println("Excepción: " + e.getMessage());
-        }
+    private void conectar(String sql) throws Exception {
+        conexion = controladorst.getConnection();
+        ps = conexion.prepareStatement(sql);
+    }
 
+    public void rellenarCamposEditar() {
+        Cliente editarCliente = controladorst.dameCliente();
+        ftDni.setText(editarCliente.getDni());
+        ftNombre.setText(editarCliente.getNombre());
+        ftEmail.setText(editarCliente.getEmail());
+        ftTelefono.setText(editarCliente.getTelefono().toString());
+        chbSocio.setSelected(editarCliente.getSocio());
+    }
+
+    @FXML
+    void aceptar(ActionEvent event) throws Exception {
+        if (controladorst.editando() != true) {
+            String sql = "INSERT INTO Clientes VALUES (?, ?, ?, ?, ?)";
+            conectar(sql);
+            ps.setString(1, ftDni.getText());
+            ps.setString(2, ftNombre.getText());
+            ps.setString(3, ftTelefono.getText());
+            ps.setString(4, ftEmail.getText());
+            int socio = chbSocio.isSelected() ? 1 : 0;
+            ps.setInt(5, socio);
+            ps.executeUpdate();
+        } else {
+            String sql = "UPDATE Clientes SET nombre=?, telefono=?, email=?, socio=? WHERE dni=?";
+            conectar(sql);
+            ps.setString(1, ftNombre.getText());
+            ps.setString(2, ftTelefono.getText());
+            ps.setString(3, ftEmail.getText());
+            int socio = chbSocio.isSelected() ? 1 : 0;
+            ps.setInt(4, socio);
+            ps.setString(5, ftDni.getText());
+            ps.executeUpdate();
+        }
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Adevertencia");
         alert.setHeaderText("¿Estás seguro de que deseas ACEPTAR la operación?");
@@ -98,12 +122,28 @@ public class controladorAñadirCliente implements Initializable {
         }
     }
 
+    public void limpiarCampos() {
+        ftDni.clear();
+        ftNombre.clear();
+        ftEmail.clear();
+        ftTelefono.clear();
+        chbSocio.disableProperty();
+    }
+
     public void setControladorEnlace(Controlador control) {
-            this.controladorst = control;
+        this.controladorst = control;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        Platform.runLater(() -> {
+            System.out.println(controladorst.editando());
+            if (controladorst.editando() == true) {
+                limpiarCampos();
+                rellenarCamposEditar();
+            } else {
+                limpiarCampos();
+            }
+        });
     }
 }

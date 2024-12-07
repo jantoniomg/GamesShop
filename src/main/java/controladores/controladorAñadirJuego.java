@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,6 +21,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import modelos.Juego;
 
 /**
  *
@@ -31,7 +31,8 @@ public class controladorAñadirJuego implements Initializable {
 
     private Controlador controladorst;
     Connection conexion;
-
+    PreparedStatement ps;
+    
     @FXML
     private Button btnAceptar;
 
@@ -81,23 +82,45 @@ public class controladorAñadirJuego implements Initializable {
         }
     }
 
-    @FXML
-    void aceptar(ActionEvent event) {
-        String sql = "INSERT INTO Juegos (`Nombre`, `Descripcion`, `Plataforma`, `Imagen`, `Stock`, `Precio`) VALUES (?, ?, ?, ?, ?, ?)";
-        try {
-            Connection conexion = controladorst.getConnection();
-            PreparedStatement preparedStatement = conexion.prepareStatement(sql);
-            preparedStatement.setString(1, tfNombre.getText());
-            preparedStatement.setString(2, taDescripcion.getText());
-            preparedStatement.setString(3, tfPlataforma.getText());
-             preparedStatement.setString(4, ivImagen.getImage().getUrl());
-            preparedStatement.setInt(5, Integer.parseInt(tfStock.getText()));
-            preparedStatement.setDouble(6, Double.parseDouble(tfPrecio.getText()));
-            
-            preparedStatement.executeUpdate();
+    private void conectar(String sql) throws Exception {
+        conexion = controladorst.getConnection();
+        ps= conexion.prepareStatement(sql);
+    }
 
-        } catch (SQLException | IOException e) {
-            System.out.println("Excepción: " + e.getMessage());
+    public void rellenarCamposEditar() {
+        Juego editarJuego = controladorst.dameJuego();
+        ivImagen.setImage(new Image(editarJuego.getImagen()));
+        taDescripcion.setText(editarJuego.getDescripcion());
+        tfId.setText(editarJuego.getId_juego().toString());
+        tfNombre.setText(editarJuego.getNombre());
+        tfPlataforma.setText(editarJuego.getPlataforma());
+        tfPrecio.setText(editarJuego.getPrecio().toString());
+        tfStock.setText(String.valueOf(editarJuego.getStock()));
+    }
+
+    @FXML
+    void aceptar(ActionEvent event) throws Exception {
+        if (controladorst.editando() != true) {
+            String sql = "INSERT INTO Juegos (`Nombre`, `Descripcion`, `Plataforma`, `Imagen`, `Stock`, `Precio`) VALUES (?, ?, ?, ?, ?, ?)";
+                conectar(sql);
+                ps.setString(1, tfNombre.getText());
+                ps.setString(2, taDescripcion.getText());
+                ps.setString(3, tfPlataforma.getText());
+                ps.setString(4, ivImagen.getImage().getUrl());
+                ps.setInt(5, Integer.parseInt(tfStock.getText()));
+                ps.setDouble(6, Double.parseDouble(tfPrecio.getText()));
+                ps.executeUpdate();
+        } else {
+            String sql = "UPDATE Juegos SET Nombre=?, Descripcion=?, Plataforma=?, Imagen=?, Stock=?, Precio=?  WHERE id_Juego=?";
+                conectar(sql);
+                ps.setString(1, tfNombre.getText());
+                ps.setString(2, taDescripcion.getText());
+                ps.setString(3, tfPlataforma.getText());
+                ps.setString(4, ivImagen.getImage().getUrl());
+                ps.setInt(5, Integer.parseInt(tfStock.getText()));
+                ps.setDouble(6, Double.parseDouble(tfPrecio.getText()));
+                ps.setString(7, tfId.getText());
+                ps.executeUpdate();
         }
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Adevertencia");
@@ -129,12 +152,32 @@ public class controladorAñadirJuego implements Initializable {
         }
     }
 
+    public void limpiarCampos() {
+        ivImagen.setImage(null);
+        taDescripcion.setText("");
+        tfId.clear();
+        tfNombre.clear();
+        tfPlataforma.clear();
+        tfPrecio.clear();
+        tfStock.clear();
+    }
+
     public void setControladorEnlace(Controlador control) {
-            this.controladorst = control;
+        this.controladorst = control;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
+        Platform.runLater(() -> {
+            System.out.println(controladorst.editando());
+            if (controladorst.editando() == true) {
+                limpiarCampos();
+                rellenarCamposEditar();
+            }else{
+                limpiarCampos();
+            }
+        });
+        
     }
 }
