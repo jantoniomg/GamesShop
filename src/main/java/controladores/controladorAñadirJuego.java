@@ -9,12 +9,15 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -55,7 +58,7 @@ public class controladorAñadirJuego implements Initializable {
     private TextField tfNombre;
 
     @FXML
-    private TextField tfPlataforma;
+    private ComboBox<String> cmbPlataforma;
 
     @FXML
     private TextField tfPrecio;
@@ -71,12 +74,8 @@ public class controladorAñadirJuego implements Initializable {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Archivos de imagen", "*.png", "*.jpg", "*.jpeg", "*.gif")
         );
-
         File archivoSeleccionado = fileChooser.showOpenDialog(null);
-
-        // Verificar si se seleccionó un archivo
         if (archivoSeleccionado != null) {
-            // Cargar la imagen seleccionada en el ImageView
             Image image = new Image(archivoSeleccionado.toURI().toString());
             ivImagen.setImage(image);
         }
@@ -93,7 +92,7 @@ public class controladorAñadirJuego implements Initializable {
         taDescripcion.setText(editarJuego.getDescripcion());
         tfId.setText(editarJuego.getId_juego().toString());
         tfNombre.setText(editarJuego.getNombre());
-        tfPlataforma.setText(editarJuego.getPlataforma());
+        cmbPlataforma.setValue(editarJuego.getPlataforma());
         tfPrecio.setText(editarJuego.getPrecio().toString());
         tfStock.setText(String.valueOf(editarJuego.getStock()));
     }
@@ -105,7 +104,7 @@ public class controladorAñadirJuego implements Initializable {
                 conectar(sql);
                 ps.setString(1, tfNombre.getText());
                 ps.setString(2, taDescripcion.getText());
-                ps.setString(3, tfPlataforma.getText());
+                ps.setString(3, cmbPlataforma.getValue());
                 ps.setString(4, ivImagen.getImage().getUrl());
                 ps.setInt(5, Integer.parseInt(tfStock.getText()));
                 ps.setDouble(6, Double.parseDouble(tfPrecio.getText()));
@@ -115,7 +114,7 @@ public class controladorAñadirJuego implements Initializable {
                 conectar(sql);
                 ps.setString(1, tfNombre.getText());
                 ps.setString(2, taDescripcion.getText());
-                ps.setString(3, tfPlataforma.getText());
+                ps.setString(3, cmbPlataforma.getValue());
                 ps.setString(4, ivImagen.getImage().getUrl());
                 ps.setInt(5, Integer.parseInt(tfStock.getText()));
                 ps.setDouble(6, Double.parseDouble(tfPrecio.getText()));
@@ -157,7 +156,7 @@ public class controladorAñadirJuego implements Initializable {
         taDescripcion.setText("");
         tfId.clear();
         tfNombre.clear();
-        tfPlataforma.clear();
+        cmbPlataforma.setValue("PC");
         tfPrecio.clear();
         tfStock.clear();
     }
@@ -168,7 +167,8 @@ public class controladorAñadirJuego implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        ObservableList<String> plataformas = FXCollections.observableArrayList("Nintendo Switch", "PC", "PS4", "PS5", "XBOX");
+        cmbPlataforma.getItems().addAll(plataformas);
         Platform.runLater(() -> {
             System.out.println(controladorst.editando());
             if (controladorst.editando() == true) {

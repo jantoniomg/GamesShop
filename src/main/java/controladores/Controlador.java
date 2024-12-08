@@ -314,10 +314,9 @@ public class Controlador implements Initializable {
         botonesVisibles();
         
         ContextMenu cmCompras = new ContextMenu();
-        MenuItem ver = new MenuItem("ver");
         MenuItem editar = new MenuItem("editar");
         MenuItem eliminar = new MenuItem("eliminar");
-        cmCompras.getItems().addAll(ver, editar, eliminar);
+        cmCompras.getItems().addAll(editar, eliminar);
         tablaCompras.setContextMenu(cmCompras);
         tablaCompras.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
             if (nuevoValor != null) {
@@ -362,10 +361,9 @@ public class Controlador implements Initializable {
         tablaClientes.setVisible(true);
 
         ContextMenu cmClientes = new ContextMenu();
-        MenuItem ver = new MenuItem("ver");
         MenuItem editar = new MenuItem("editar");
         MenuItem eliminar = new MenuItem("eliminar");
-        cmClientes.getItems().addAll(ver, editar, eliminar);
+        cmClientes.getItems().addAll(editar, eliminar);
         tablaClientes.setContextMenu(cmClientes);
         tablaClientes.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
             if (nuevoValor != null) {
@@ -409,10 +407,9 @@ public class Controlador implements Initializable {
         tablaJuegos.setVisible(true);
         
         ContextMenu cmJuegos = new ContextMenu();
-        MenuItem ver = new MenuItem("ver");
         MenuItem editar = new MenuItem("editar");
         MenuItem eliminar = new MenuItem("eliminar");
-        cmJuegos.getItems().addAll(ver, editar, eliminar);
+        cmJuegos.getItems().addAll(editar, eliminar);
         tablaJuegos.setContextMenu(cmJuegos);
         tablaJuegos.getSelectionModel().selectedItemProperty().addListener((observable, viejoValor, nuevoValor) -> {
             if (nuevoValor != null) {
