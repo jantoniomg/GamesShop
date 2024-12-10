@@ -54,7 +54,7 @@
          <children>
             <Pane fx:id="paneJuegos" prefHeight="148.0" prefWidth="562.0">
                <children>
-                  <TableView fx:id="tablaJuegos" prefHeight="148.0" prefWidth="560.0">
+                  <TableView fx:id="tablaJuegos" prefHeight="148.0" prefWidth="560.0" translateX="-570.0">
                      <columns>
                         <TableColumn fx:id="id" prefWidth="49.59997367858887" text="ID" />
                         <TableColumn fx:id="imagenJuego" prefWidth="101.59998321533203" text="Imagen" />
@@ -69,7 +69,7 @@
             </Pane>
             <Pane fx:id="paneClientes" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TableView fx:id="tablaClientes" prefHeight="148.0" prefWidth="560.0">
+                  <TableView fx:id="tablaClientes" prefHeight="148.0" prefWidth="560.0" translateX="-570.0">
                     <columns>
                       <TableColumn fx:id="dni" prefWidth="100.0" text="DNI" />
                       <TableColumn fx:id="nombre" prefWidth="175.0" text="Nombre" />
@@ -82,7 +82,7 @@
             </Pane>
             <Pane fx:id="paneCompras" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TableView fx:id="tablaCompras" prefHeight="148.0" prefWidth="560.0">
+                  <TableView fx:id="tablaCompras" prefHeight="148.0" prefWidth="560.0" translateX="-570.0">
                     <columns>
                       <TableColumn fx:id="fecha" prefWidth="180.0" text="Fecha" />
                       <TableColumn fx:id="cliente" minWidth="0.0" prefWidth="200.0" text="Cliente" />

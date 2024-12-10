@@ -4,11 +4,10 @@ package modelos;
  * @author Juan Antonio Martín Gil
  */
 public class Cliente {
-    String dni,nombre,email;
-    Integer telefono;
+    String dni,nombre,email,telefono;
     Boolean socio;
     
-    public Cliente(String dni, String nombre, Integer telefono, String email, Boolean socio){
+    public Cliente(String dni, String nombre, String telefono, String email, Boolean socio){
         this.dni=dni;
         this.nombre=nombre;
         this.telefono=telefono;
@@ -40,11 +39,11 @@ public class Cliente {
         this.email = email;
     }
 
-    public Integer getTelefono() {
+    public String getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(Integer telefono) {
+    public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 

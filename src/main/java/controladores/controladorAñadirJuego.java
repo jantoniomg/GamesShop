@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,9 +26,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import modelos.Juego;
@@ -179,6 +182,7 @@ public class controladorAñadirJuego implements Initializable {
             Stage stage = (Stage) btnCancelar.getScene().getWindow();
             controladorst.introducirJuegos();
             stage.close();
+            System.out.println("Se ha editado");
         }
 
     }
@@ -251,7 +255,7 @@ public class controladorAñadirJuego implements Initializable {
                 }
             }
         };
-        
+
         //Validacion y decorador Stock
         ValidationSupport vsStock = new ValidationSupport();
         vsStock.registerValidator(tfStock, (Control c, Object value) -> {
@@ -382,7 +386,34 @@ public class controladorAñadirJuego implements Initializable {
                 limpiarCampos();
             }
         });
+        
+        for (ValidationSupport vs : validadores) {
+            vs.validationResultProperty().addListener((observable, oldValue, newValue) -> {
+                Set<Control> controles = vs.getRegisteredControls();
+                System.out.println(controles.size());
+                for (Control c : controles) {
+                    System.out.println(c);
+                    if (newValue.getErrors().isEmpty() && newValue.getWarnings().isEmpty()) {
+                        c.getStyleClass().remove("error");
+                        c.setEffect(creaDropShadow(Color.GREEN));
+                    } else {
+                        if (!c.getStyleClass().contains("error")) {
+                            c.getStyleClass().add("error");
+                            c.setEffect(creaDropShadow(Color.RED));
+                        }
+                    }
+                }
+            });
+        }
+    }
 
+    private DropShadow creaDropShadow(Color c) {
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(10);
+        dropShadow.setOffsetX(5);
+        dropShadow.setOffsetY(5);
+        dropShadow.setColor(c);
+        return dropShadow;
     }
 
     private Label iconoPersonalizadoEtiqueta() {

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,8 +26,9 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import static javax.management.Query.value;
 import modelos.Cliente;
 import org.controlsfx.validation.Severity;
 import org.controlsfx.validation.ValidationMessage;
@@ -44,7 +46,8 @@ public class controladorAñadirCliente implements Initializable {
     Connection conexion;
     PreparedStatement ps;
     List<ValidationSupport> validadores;
-
+    Cliente editarCliente;
+    
     @FXML
     private Button btnAceptar;
 
@@ -80,7 +83,7 @@ public class controladorAñadirCliente implements Initializable {
     }
 
     public void rellenarCamposEditar() {
-        Cliente editarCliente = controladorst.dameCliente();
+        editarCliente = controladorst.dameCliente();
         ftDni.setText(editarCliente.getDni());
         ftNombre.setText(editarCliente.getNombre());
         ftEmail.setText(editarCliente.getEmail());
@@ -125,7 +128,7 @@ public class controladorAñadirCliente implements Initializable {
             ps.setInt(5, socio);
             ps.executeUpdate();
         } else {
-            String sql = "UPDATE Clientes SET nombre=?, telefono=?, email=?, socio=? WHERE dni=?";
+            String sql = "UPDATE Clientes SET nombre=?, telefono=?, email=?, socio=?, dni=? WHERE dni=?";
             conectar(sql);
             ps.setString(1, ftNombre.getText());
             ps.setString(2, ftTelefono.getText());
@@ -133,6 +136,7 @@ public class controladorAñadirCliente implements Initializable {
             int socio = chbSocio.isSelected() ? 1 : 0;
             ps.setInt(4, socio);
             ps.setString(5, ftDni.getText());
+            ps.setString(6, editarCliente.getDni());
             ps.executeUpdate();
         }
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -310,8 +314,35 @@ public class controladorAñadirCliente implements Initializable {
                 limpiarCampos();
             }
         });
+        for (ValidationSupport vs : validadores) {
+            vs.validationResultProperty().addListener((observable, oldValue, newValue) -> {
+                Set<Control> controles = vs.getRegisteredControls();
+                System.out.println(controles.size());
+                for (Control c : controles) {
+                    System.out.println(c);
+                    if (newValue.getErrors().isEmpty() && newValue.getWarnings().isEmpty()) {
+                        c.getStyleClass().remove("error");
+                        c.setEffect(creaDropShadow(Color.GREEN));
+                    } else {
+                        if (!c.getStyleClass().contains("error")) {
+                            c.getStyleClass().add("error");
+                            c.setEffect(creaDropShadow(Color.RED));
+                        }
+                    }
+                }
+            });
+        }
     }
 
+    private DropShadow creaDropShadow(Color c){
+        DropShadow dropShadow = new DropShadow();
+        dropShadow.setRadius(10);
+        dropShadow.setOffsetX(5);
+        dropShadow.setOffsetY(5);
+        dropShadow.setColor(c);
+        return dropShadow;
+    }
+    
     private Label iconoPersonalizadoEtiqueta() {
         Label errorLabel = new Label("X");
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
