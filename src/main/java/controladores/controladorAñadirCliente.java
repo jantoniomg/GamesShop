@@ -4,11 +4,12 @@
  */
 package controladores;
 
-import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -19,11 +20,19 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Stage;
+import static javax.management.Query.value;
 import modelos.Cliente;
-import modelos.Juego;
+import org.controlsfx.validation.Severity;
+import org.controlsfx.validation.ValidationMessage;
+import org.controlsfx.validation.ValidationResult;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.decoration.GraphicValidationDecoration;
 
 /**
  *
@@ -34,6 +43,7 @@ public class controladorAñadirCliente implements Initializable {
     private Controlador controladorst;
     Connection conexion;
     PreparedStatement ps;
+    List<ValidationSupport> validadores;
 
     @FXML
     private Button btnAceptar;
@@ -45,14 +55,22 @@ public class controladorAñadirCliente implements Initializable {
     private CheckBox chbSocio;
 
     @FXML
+    private Label lblDni;
+    @FXML
     private TextField ftDni;
 
+    @FXML
+    private Label lblEmail;
     @FXML
     private TextField ftEmail;
 
     @FXML
+    private Label lblNombre;
+    @FXML
     private TextField ftNombre;
 
+    @FXML
+    private Label lblTelefono;
     @FXML
     private TextField ftTelefono;
 
@@ -72,6 +90,30 @@ public class controladorAñadirCliente implements Initializable {
 
     @FXML
     void aceptar(ActionEvent event) throws Exception {
+        System.out.println("Comprobación de DATOS");
+        System.out.println("=====================");
+        for (ValidationSupport validationSupport : validadores) {
+            ValidationResult resultados = validationSupport.getValidationResult();
+            if (resultados != null) {
+                System.out.println("Errores: " + resultados.getErrors());
+                System.out.println("Infos: " + resultados.getInfos());
+                System.out.println("Mensajes: " + resultados.getMessages());
+                System.out.println("Warnings: " + resultados.getWarnings());
+            } else {
+                System.out.println("No hay resultados de validación para: " + validationSupport.getRegisteredControls());
+            }
+        }
+        boolean todoOK = true;
+        for (ValidationSupport validationSupport : validadores) {
+            todoOK = (todoOK && validationSupport.getValidationResult().getErrors().isEmpty());
+        }
+
+        if (!todoOK) {
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setContentText("El formulario sigue teniendo ERRORES!!!");
+            a.showAndWait();
+            return;
+        }
         if (controladorst.editando() != true) {
             String sql = "INSERT INTO Clientes VALUES (?, ?, ?, ?, ?)";
             conectar(sql);
@@ -136,8 +178,131 @@ public class controladorAñadirCliente implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        ftDni.setTooltip(new Tooltip("DNI del cliente. El dni debe tener mas 8 numeros y una letra"));
+        ftNombre.setTooltip(new Tooltip("Nombre de usuario. El nombre debe tener mas de 3 caracteres"));
+        ftEmail.setTooltip(new Tooltip("Formato <texto>@<texto>.<texto>"));
+        ftTelefono.setTooltip(new Tooltip("El telefono debe tener entre 9 y 11"));
+
+        //Validacion y decorador DNI
+        ValidationSupport vsDni = new ValidationSupport();
+        vsDni.registerValidator(ftDni, (Control c, Object value) -> {
+            String dni = (String) value;
+            String dniRegex = "^[0-9]{8}[A-Za-z]$";
+            if (dni == null) {
+                return ValidationResult.fromWarning(c, "Val 3: El dni no debe estar vacío");
+            } else if (!dni.matches(dniRegex)) {
+                return ValidationResult.fromError(c, "El DNI debe tener 8 dígitos seguidos de una letra.");
+            } else {
+                return ValidationResult.fromInfo(c, "Val 3: DNI valido");
+            }
+        });
+        GraphicValidationDecoration dDNI = new GraphicValidationDecoration() {
+            @Override
+            public void applyValidationDecoration(ValidationMessage message) {
+                super.applyValidationDecoration(message);
+                System.out.println("Mensaje:" + message);
+                if (message.getSeverity() == Severity.ERROR || message.getSeverity() == Severity.WARNING) {
+                    lblDni.setGraphic(iconoPersonalizadoEtiqueta());
+                    lblDni.setContentDisplay(ContentDisplay.LEFT);
+                } else if (message.getSeverity() == Severity.INFO) {
+                    lblDni.setGraphic(null);
+                }
+            }
+        };
+
+        //Validacion y decorador Nombre
+        ValidationSupport vsNombre = new ValidationSupport();
+        vsNombre.registerValidator(ftNombre, (Control c, Object value) -> {
+            String nombre = (String) value;
+            String nombreRegex = "^[A-Za-záéíóúÁÉÍÓÚÑñ ]{2,50}$";
+
+            if (nombre == null) {
+                return ValidationResult.fromWarning(c, "Val 3: El nombre no debe estar vacío");
+            } else if (!nombre.matches(nombreRegex)) {
+                return ValidationResult.fromError(c, "Val 3: El nombre debe tener mas 3 letras");
+            } else {
+                return ValidationResult.fromInfo(c, "Val 3: Nombre valido");
+            }
+        });
+        GraphicValidationDecoration dNombre = new GraphicValidationDecoration() {
+            @Override
+            public void applyValidationDecoration(ValidationMessage message) {
+                super.applyValidationDecoration(message);
+                System.out.println("Mensaje:" + message);
+                if (message.getSeverity() == Severity.ERROR || message.getSeverity() == Severity.WARNING) {
+                    lblNombre.setGraphic(iconoPersonalizadoEtiqueta());
+                    lblNombre.setContentDisplay(ContentDisplay.LEFT);
+                } else if (message.getSeverity() == Severity.INFO) {
+                    lblNombre.setGraphic(null);
+                }
+            }
+        };
+        //Validacion y decorador Email
+        ValidationSupport vsEmail = new ValidationSupport();
+        vsEmail.registerValidator(ftEmail, (Control c, Object value) -> {
+            String email = (String) value;
+            String emailRegex = "^(.+)@(.+)\\.(.+)$";
+            if (email == null) {
+                return ValidationResult.fromWarning(c, "Val 3: El email no debe estar vacío");
+            } else if (!email.matches(emailRegex)) {
+                return ValidationResult.fromError(c, "El email debe tener el siguiente formato Formato ( <texto>@<texto>.<texto> )");
+            } else {
+                return ValidationResult.fromInfo(c, "Val 3: Email valido");
+            }
+        });
+        GraphicValidationDecoration dEmail = new GraphicValidationDecoration() {
+            @Override
+            public void applyValidationDecoration(ValidationMessage message) {
+                super.applyValidationDecoration(message);
+                System.out.println("Mensaje:" + message);
+                if (message.getSeverity() == Severity.ERROR || message.getSeverity() == Severity.WARNING) {
+                    lblEmail.setGraphic(iconoPersonalizadoEtiqueta());
+                    lblEmail.setContentDisplay(ContentDisplay.LEFT);
+                } else if (message.getSeverity() == Severity.INFO) {
+                    lblEmail.setGraphic(null);
+                }
+            }
+        };
+        //Validacion y decorador Telefono
+        ValidationSupport vsTelefono = new ValidationSupport();
+        vsTelefono.registerValidator(ftTelefono, (Control c, Object value) -> {
+            String telefono = (String) value;
+            String telefonoRegex = "^\\d{9,11}$";
+            if (telefono == null) {
+                return ValidationResult.fromWarning(c, "Val 3: El telefono no debe estar vacío");
+            } else if (!telefono.matches(telefonoRegex)) {
+                return ValidationResult.fromError(c, "El número de teléfono debe tener entre 9 y 11 dígitos.");
+            } else {
+                return ValidationResult.fromInfo(c, "Val 3: Email valido");
+            }
+        });
+        GraphicValidationDecoration dTelefono = new GraphicValidationDecoration() {
+            @Override
+            public void applyValidationDecoration(ValidationMessage message) {
+                super.applyValidationDecoration(message);
+                System.out.println("Mensaje:" + message);
+                if (message.getSeverity() == Severity.ERROR || message.getSeverity() == Severity.WARNING) {
+                    lblTelefono.setGraphic(iconoPersonalizadoEtiqueta());
+                    lblTelefono.setContentDisplay(ContentDisplay.LEFT);
+                } else if (message.getSeverity() == Severity.INFO) {
+                    lblTelefono.setGraphic(null);
+                }
+            }
+        };
+
+        validadores = new ArrayList<>();
+        validadores.addAll(Arrays.asList(vsNombre, vsDni, vsEmail, vsTelefono));
+
         Platform.runLater(() -> {
             System.out.println(controladorst.editando());
+            for (ValidationSupport validationSupport : validadores) {
+                validationSupport.initInitialDecoration();
+            }
+            vsNombre.setValidationDecorator(dNombre);
+            vsDni.setValidationDecorator(dDNI);
+            vsEmail.setValidationDecorator(dEmail);
+            vsTelefono.setValidationDecorator(dTelefono);
+
             if (controladorst.editando() == true) {
                 limpiarCampos();
                 rellenarCamposEditar();
@@ -145,5 +310,11 @@ public class controladorAñadirCliente implements Initializable {
                 limpiarCampos();
             }
         });
+    }
+
+    private Label iconoPersonalizadoEtiqueta() {
+        Label errorLabel = new Label("X");
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        return errorLabel;
     }
 }

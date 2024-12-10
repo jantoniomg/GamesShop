@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -14,7 +15,11 @@
          <children>
             <VBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="300.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre" />
+                  <Label fx:id="lblNombre" text="Nombre">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Label>
                   <TextField fx:id="ftNombre" />
                </children>
                <padding>
@@ -23,7 +28,11 @@
             </VBox>
             <VBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="300.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="DNI" />
+                  <Label fx:id="lblDni" text="DNI">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Label>
                   <TextField fx:id="ftDni" />
                </children>
                <padding>
@@ -36,7 +45,11 @@
          <children>
             <VBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="300.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Email" />
+                  <Label fx:id="lblEmail" text="Email">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Label>
                   <TextField fx:id="ftEmail" />
                </children>
                <padding>
@@ -45,7 +58,11 @@
             </VBox>
             <VBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="300.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Telefono" />
+                  <Label fx:id="lblTelefono" text="Telefono">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Label>
                   <TextField fx:id="ftTelefono" />
                </children>
                <padding>

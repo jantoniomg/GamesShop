@@ -3,19 +3,19 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="339.0" prefWidth="477.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.controladorAñadirCompra">
    <children>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Fecha">
+      <Label fx:id="lblFecha" text="Fecha">
          <VBox.margin>
             <Insets left="10.0" right="10.0" top="10.0" />
          </VBox.margin>
-      </Text>
+      </Label>
       <DatePicker fx:id="fechaCompra">
          <VBox.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -25,11 +25,11 @@
          <children>
             <VBox prefHeight="100.0" prefWidth="235.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="DNI">
+                  <Label fx:id="lblDNI" text="DNI">
                      <VBox.margin>
                         <Insets left="10.0" right="10.0" top="10.0" />
                      </VBox.margin>
-                  </Text>
+                  </Label>
                   <TextField fx:id="tfDNI" prefHeight="26.0" prefWidth="185.0">
                      <VBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -47,11 +47,11 @@
             </VBox>
             <VBox prefHeight="100.0" prefWidth="235.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre del juego">
+                  <Label fx:id="lblNombre" text="Nombre del juego">
                      <VBox.margin>
                         <Insets left="10.0" right="10.0" top="10.0" />
                      </VBox.margin>
-                  </Text>
+                  </Label>
                   <TextField fx:id="TFnJuego">
                      <VBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
