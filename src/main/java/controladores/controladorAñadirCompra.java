@@ -51,7 +51,8 @@ public class controladorAñadirCompra implements Initializable {
     Connection conexion;
     PreparedStatement ps;
     List<ValidationSupport> validadores;
-    
+
+    Compras editarCompras;
     ObservableList<Compras> compraBD;
     ObservableList<Cliente> clienteBD;
     ObservableList<Juego> juegosBD;
@@ -88,7 +89,7 @@ public class controladorAñadirCompra implements Initializable {
     }
 
     public void rellenarCamposEditar() {
-        Compras editarCompras = controladorst.dameCompra();
+        editarCompras = controladorst.dameCompra();
         java.util.Date utilDate = editarCompras.getFecha();
         java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
         fechaCompra.setValue(sqlDate.toLocalDate());
@@ -323,14 +324,24 @@ public class controladorAñadirCompra implements Initializable {
             String idjuego = TFnJuego.getText();
             if (idjuego == null || idjuego.isEmpty()) {
                 return ValidationResult.fromError(c, "Debe ingresar un ID.");
+
             }
             try {
+                boolean idExiste = false;
                 int id = Integer.parseInt(idjuego);
-                boolean idExiste = idJuego == id;
-                if (!idExiste) {
-                    return ValidationResult.fromError(c, "El ID ingresado no está en la lista.");
+                if (!controladorst.editando()) {
+                    idExiste = idJuego == id;
+                    if (!idExiste) {
+                        return ValidationResult.fromError(c, "El ID ingresado no existe");
+                    }
+                    return ValidationResult.fromInfo(c, "ID válido.");
+                } else {
+                    idExiste = editarCompras.getIdjuego() == id;
+                    if (!idExiste) {
+                        return ValidationResult.fromError(c, "El ID ingresado no existe");
+                    }
+                    return ValidationResult.fromInfo(c, "ID válido.");
                 }
-                return ValidationResult.fromInfo(c, "ID válido.");
             } catch (NumberFormatException e) {
                 return ValidationResult.fromError(c, "El ID debe ser un número.");
             }
@@ -390,7 +401,8 @@ public class controladorAñadirCompra implements Initializable {
             });
         }
     }
-    private DropShadow creaDropShadow(Color c){
+
+    private DropShadow creaDropShadow(Color c) {
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(10);
         dropShadow.setOffsetX(5);
@@ -398,7 +410,7 @@ public class controladorAñadirCompra implements Initializable {
         dropShadow.setColor(c);
         return dropShadow;
     }
-    
+
     private Label iconoPersonalizadoEtiqueta() {
         Label errorLabel = new Label("X");
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");

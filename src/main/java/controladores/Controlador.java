@@ -651,14 +651,13 @@ public class Controlador implements Initializable {
 
             PORT = (String) properties.get("PORT");
             BBDD = (String) properties.get("BBDD");
-            USER = (String) properties.get("USER");//USER de MARIADB en LAMP 
-            PWD = (String) properties.get("PWD");//PWD de MARIADB en LAMP 
+            USER = (String) properties.get("USER");
+            PWD = (String) properties.get("PWD"); 
 
             Connection conn;
             try {
                 String cadconex = "jdbc:mysql://" + IP + ":" + PORT + "/" + BBDD + " USER:" + USER + "PWD:" + PWD;
                 System.out.println(cadconex);
-                //Si usamos LAMP Funciona con ambos conectores
                 conn = DriverManager.getConnection("jdbc:mysql://" + IP + ":" + PORT + "/" + BBDD, USER, PWD);
                 return conn;
             } catch (SQLException e) {

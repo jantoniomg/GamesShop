@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="602.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.Controlador">
+<VBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="602.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.Controlador" stylesheets="@../ventanas/estilosSceneBuilder.css">
    <children>
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
@@ -103,12 +103,12 @@
          <children>
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="eliminar" mnemonicParsing="false" onAction="#eliminarCompra" text="eliminar">
+                  <Button fx:id="eliminar" mnemonicParsing="false" onAction="#eliminarCompra" text="Eliminar">
                      <HBox.margin>
                         <Insets bottom="20.0" left="20.0" right="20.0" />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="actualizar" mnemonicParsing="false" onAction="#actualizarCompra" text="actualizar" />
+                  <Button fx:id="actualizar" mnemonicParsing="false" onAction="#actualizarCompra" text="Actualizar" />
                </children>
             </HBox>
             <Button fx:id="btnSalir" contentDisplay="TOP" onAction="#salir" prefHeight="22.0" prefWidth="126.0" text="_Salir">
