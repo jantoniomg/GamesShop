@@ -1,0 +1,25 @@
+/* Clase para NODOS de JavaFX */
+#vboxPrincipal{
+    -fx-background-color: white;
+}
+#botonera{
+    -fx-background-color:#e20a03;
+}
+
+#botonera Button{
+    -fx-background-color: white;
+    -fx-border-radius:20%;
+    -fx-border-color: black;
+    -fx-background-radius: 20%;
+    
+}
+
+Button:hover{
+    -fx-text-fill: #e20a03;
+}
+
+
+
+
+
+

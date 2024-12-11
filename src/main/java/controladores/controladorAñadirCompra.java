@@ -113,7 +113,7 @@ public class controladorAñadirCompra implements Initializable {
         }
 
         FilteredList<String> filtroDni = new FilteredList<>(dni, p -> true);
-        tfDNI.setPromptText("Introduce texto para filtrar..");
+        tfDNI.setPromptText("Introduce el nombre del juego..");
         tfDNI.textProperty().addListener((observable, oldValue, newValue) -> {
             filtroDni.setPredicate(item -> {
                 if (newValue == null || newValue.isEmpty()) {
@@ -123,7 +123,7 @@ public class controladorAñadirCompra implements Initializable {
             });
         });
         FilteredList<Juego> filtrojuego = new FilteredList<>(juego, p -> true);
-        TFnJuego.setPromptText("Introduce texto para filtrar..");
+        TFnJuego.setPromptText("Introduce el dni del cliente..");
         TFnJuego.textProperty().addListener((observable, oldValue, newValue) -> {
             filtrojuego.setPredicate(item -> {
                 if (newValue == null || newValue.isEmpty()) {

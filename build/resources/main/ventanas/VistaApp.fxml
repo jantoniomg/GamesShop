@@ -11,9 +11,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="602.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.Controlador" stylesheets="@../ventanas/estilosSceneBuilder.css">
+<VBox id="vboxPrincipal" fx:id="vboxPrincipal" alignment="BOTTOM_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="602.0" stylesheets="@../css/estilos.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.Controlador">
    <children>
-      <HBox prefHeight="100.0" prefWidth="200.0">
+      <HBox id="botonera" prefHeight="100.0" prefWidth="200.0">
          <children>
             <Button fx:id="btnCompras" contentDisplay="TOP" onAction="#abrirVentanaCompras" prefHeight="186.0" prefWidth="126.0" text="_Compras">
                <graphic>
