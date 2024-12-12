@@ -8,12 +8,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-
 /**
- * Plantilla JAVAFX Autor: Curso y año: Objetivo de esta clase:
+ *
+ * @author Juanan
  */
 public class Main extends Application {
 
@@ -26,6 +27,8 @@ public class Main extends Application {
 
         Parent root = FXMLLoader.load(getClass().getResource("../ventanas/VistaApp.fxml"));
         Scene scene = new Scene(root);
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        primaryStage.getIcons().add(icon);
         primaryStage.setScene(scene);
         primaryStage.setTitle("GamesShop");
         primaryStage.setResizable(false);

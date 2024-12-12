@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="339.0" prefWidth="477.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.controladorAñadirCompra">
+<VBox id="vboxPrincipal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="339.0" prefWidth="477.0" stylesheets="@../css/estiloAñadir.css" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.controladorAñadirCompra">
    <children>
       <Label fx:id="lblFecha" text="Fecha">
          <VBox.margin>
@@ -68,11 +68,11 @@
       </HBox>
       <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0">
          <children>
-            <Button fx:id="btnAceptar" mnemonicParsing="false" onAction="#aceptar" text="Aceptar">
+            <Button id="aceptar" fx:id="btnAceptar" mnemonicParsing="false" onAction="#aceptar" text="Aceptar">
                <HBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </HBox.margin></Button>
-            <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar">
+            <Button id="cancelar" fx:id="btnCancelar" mnemonicParsing="false" onAction="#cancelar" text="Cancelar">
                <HBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </HBox.margin></Button>

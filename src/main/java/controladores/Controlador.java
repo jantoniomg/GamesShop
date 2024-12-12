@@ -64,7 +64,7 @@ public class Controlador implements Initializable {
     private ObservableList<Cliente> clientes;
     private ObservableList<Compras> compras;
     private ObservableList<Juego> juegos;
-
+    
     boolean editrarBool;
     Juego juegoGuardado;
     Cliente clienteGuardado;
@@ -155,7 +155,12 @@ public class Controlador implements Initializable {
     private TableColumn<Juego, Double> precio;
     @FXML
     private TableColumn<Juego, Integer> stock;
-
+    
+    private Image iconoApp(){
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        return icon;
+    }
+    
     //Se utiliza para inicializar las imagenes que se usan en la aplicacion al iniciarse
     private void inicializarImagenes() {
         try {
@@ -217,6 +222,7 @@ public class Controlador implements Initializable {
         conAñadirCompra.setControladorEnlace(this);
         Scene scAñadirCompra = new Scene(root);
         stageAñadir = new Stage();
+        stageAñadir.getIcons().add(iconoApp());
         stageAñadir.initModality(Modality.APPLICATION_MODAL);
         stageAñadir.setResizable(false);
         stageAñadir.setScene(scAñadirCompra);
@@ -232,6 +238,7 @@ public class Controlador implements Initializable {
         conAñadirCliente.setControladorEnlace(this);
         Scene scAñadirCliente = new Scene(root);
         stageAñadir = new Stage();
+        stageAñadir.getIcons().add(iconoApp());
         stageAñadir.initModality(Modality.APPLICATION_MODAL);
         stageAñadir.setResizable(false);
         stageAñadir.setScene(scAñadirCliente);
@@ -247,6 +254,7 @@ public class Controlador implements Initializable {
         conAñadirJuego.setControladorEnlace(this);
         Scene scAñadirJuego = new Scene(root);
         stageAñadir = new Stage();
+        stageAñadir.getIcons().add(iconoApp());
         stageAñadir.initModality(Modality.APPLICATION_MODAL);
         stageAñadir.setResizable(false);
         stageAñadir.setScene(scAñadirJuego);

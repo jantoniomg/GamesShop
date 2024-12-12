@@ -1,0 +1,23 @@
+#vboxPrincipal{
+    -fx-background-color: #e9e8e8;
+}
+Button{
+    -fx-background-color:#ababab;
+    -fx-text-fill: white;
+}
+Button:hover{
+    -fx-background-color:black;
+}
+#aceptar:hover{
+    -fx-background-color: #44ff46;
+}
+#cancelar:hover{
+    -fx-background-color: #e20a03;
+}
+
+
+
+
+
+
+

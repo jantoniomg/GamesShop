@@ -2,6 +2,15 @@
 #vboxPrincipal{
     -fx-background-color: white;
 }
+
+Button{
+    -fx-background-color:#ababab;
+    -fx-text-fill: white;
+}
+Button:hover{
+    -fx-background-color:black;
+}
+
 #botonera{
     -fx-background-color:#e20a03;
 }
@@ -11,10 +20,10 @@
     -fx-border-radius:20%;
     -fx-border-color: black;
     -fx-background-radius: 20%;
-    
+    -fx-text-fill: black;
 }
 
-Button:hover{
+#botonera Button:hover{
     -fx-text-fill: #e20a03;
 }
 
