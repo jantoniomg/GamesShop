@@ -45,6 +45,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
@@ -64,12 +65,12 @@ public class Controlador implements Initializable {
     private ObservableList<Cliente> clientes;
     private ObservableList<Compras> compras;
     private ObservableList<Juego> juegos;
-    
+
     boolean editrarBool;
     Juego juegoGuardado;
     Cliente clienteGuardado;
     Compras compraGuardada;
-
+    Stage alertStage;
     Stage stageAñadir;
     Connection conexion;
     Statement st;
@@ -155,12 +156,12 @@ public class Controlador implements Initializable {
     private TableColumn<Juego, Double> precio;
     @FXML
     private TableColumn<Juego, Integer> stock;
-    
-    private Image iconoApp(){
+
+    private Image iconoApp() {
         Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
         return icon;
     }
-    
+
     //Se utiliza para inicializar las imagenes que se usan en la aplicacion al iniciarse
     private void inicializarImagenes() {
         try {
@@ -207,6 +208,9 @@ public class Controlador implements Initializable {
             alert.setTitle("Advertencia");
             alert.setHeaderText("¿Estás seguro de que deseas cerrar la ventana?");
             alert.setContentText("Los cambios realizados no se guardarán.");
+            Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+            alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(icon);
             Optional<ButtonType> respuesta = alert.showAndWait();
             if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
                 stageAñadir.close();
@@ -291,6 +295,8 @@ public class Controlador implements Initializable {
             alert.setTitle("Advertencia");
             alert.setHeaderText("¿Estás seguro que deseas eliminar la compra?");
             alert.setContentText("La compra se eliminara para siempre");
+            alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(iconoApp());
             Optional<ButtonType> respuesta = alert.showAndWait();
             if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
                 String sql = "DELETE FROM Compras WHERE Fecha_Compra=?";
@@ -355,9 +361,9 @@ public class Controlador implements Initializable {
                 });
                 tablaCompras.setOnKeyPressed(evento -> {
                     if (evento.getCode() == KeyCode.DELETE) {
-                            borrarCompra(nuevoValor);
-                        }
-                    
+                        borrarCompra(nuevoValor);
+                    }
+
                 });
             }
         });
@@ -368,6 +374,8 @@ public class Controlador implements Initializable {
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro que deseas eliminar la compra?");
         alert.setContentText("La compra se eliminara para siempre");
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(iconoApp());
         Optional<ButtonType> respuesta = alert.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             String sql = "DELETE FROM Compras WHERE Fecha_Compra=?";
@@ -423,11 +431,14 @@ public class Controlador implements Initializable {
             }
         });
     }
+
     private void eliminarCliente(Cliente cliente) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro de que deseas eliminar el cliente?");
         alert.setContentText("El cliente se eliminara para siempre");
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(iconoApp());
         Optional<ButtonType> respuesta = alert.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             String sql = "DELETE FROM Clientes WHERE dni=?";
@@ -487,6 +498,8 @@ public class Controlador implements Initializable {
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro de que deseas eliminar el juego?");
         alert.setContentText("El juego se eliminara para siempre");
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(iconoApp());
         Optional<ButtonType> respuesta = alert.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             String sql = "DELETE FROM Juegos WHERE id_Juego=?";
@@ -610,6 +623,8 @@ public class Controlador implements Initializable {
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro de que deseas cerrar la ventana?");
         alert.setContentText("Los cambios realizados se guardarán.");
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(iconoApp());
         Optional<ButtonType> respuesta = alert.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             System.exit(0);
@@ -660,7 +675,7 @@ public class Controlador implements Initializable {
             PORT = (String) properties.get("PORT");
             BBDD = (String) properties.get("BBDD");
             USER = (String) properties.get("USER");
-            PWD = (String) properties.get("PWD"); 
+            PWD = (String) properties.get("PWD");
 
             Connection conn;
             try {

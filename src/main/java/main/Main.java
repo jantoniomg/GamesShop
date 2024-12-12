@@ -49,6 +49,9 @@ public class Main extends Application {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro de que deseas cerrar la aplicación?");
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(icon);
         Optional<ButtonType> respuesta = alert.showAndWait();
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
             stage.close();

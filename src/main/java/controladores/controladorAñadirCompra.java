@@ -29,6 +29,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -51,6 +52,7 @@ public class controladorAñadirCompra implements Initializable {
     Connection conexion;
     PreparedStatement ps;
     List<ValidationSupport> validadores;
+    Stage alertStage;
 
     Compras editarCompras;
     ObservableList<Compras> compraBD;
@@ -113,7 +115,7 @@ public class controladorAñadirCompra implements Initializable {
         }
 
         FilteredList<String> filtroDni = new FilteredList<>(dni, p -> true);
-        tfDNI.setPromptText("Introduce el nombre del juego..");
+        tfDNI.setPromptText("Introduce el dni del cliente..");
         tfDNI.textProperty().addListener((observable, oldValue, newValue) -> {
             filtroDni.setPredicate(item -> {
                 if (newValue == null || newValue.isEmpty()) {
@@ -123,7 +125,7 @@ public class controladorAñadirCompra implements Initializable {
             });
         });
         FilteredList<Juego> filtrojuego = new FilteredList<>(juego, p -> true);
-        TFnJuego.setPromptText("Introduce el dni del cliente..");
+        TFnJuego.setPromptText("Introduce el nombre del juego..");
         TFnJuego.textProperty().addListener((observable, oldValue, newValue) -> {
             filtrojuego.setPredicate(item -> {
                 if (newValue == null || newValue.isEmpty()) {
@@ -190,6 +192,9 @@ public class controladorAñadirCompra implements Initializable {
         if (!todoOK) {
             Alert a = new Alert(Alert.AlertType.INFORMATION);
             a.setContentText("El formulario sigue teniendo ERRORES!!!");
+            Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+            alertStage = (Stage) a.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(icon);
             a.showAndWait();
             return;
         }
@@ -203,6 +208,9 @@ public class controladorAñadirCompra implements Initializable {
                 ps.executeUpdate();
             } catch (SQLIntegrityConstraintViolationException e) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+                alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+                alertStage.getIcons().add(icon);
                 alert.setTitle("Adevertencia");
                 alert.setHeaderText("La fecha que ha seleccionado ya existe.");
                 alert.setContentText("Elija otra fecha.");
@@ -220,6 +228,9 @@ public class controladorAñadirCompra implements Initializable {
                 ps.executeUpdate();
             } catch (SQLIntegrityConstraintViolationException e) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+                alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+                alertStage.getIcons().add(icon);
                 alert.setTitle("Adevertencia");
                 alert.setContentText("La fecha que ha seleccionado ya existe.");
                 alert.setContentText("Elija otra fecha.");
@@ -231,7 +242,9 @@ public class controladorAñadirCompra implements Initializable {
         alert.setTitle("Adevertencia");
         alert.setHeaderText("¿Estás seguro de que deseas ACEPTAR la operación?");
         alert.setContentText("Los cambios realizados se guardarán.");
-
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(icon);
         Optional<ButtonType> respuesta = alert.showAndWait();
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
@@ -247,7 +260,9 @@ public class controladorAñadirCompra implements Initializable {
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro de que deseas CANCELAR la operación?");
         alert.setContentText("Los cambios realizados no se guardarán.");
-
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(icon);
         Optional<ButtonType> respuesta = alert.showAndWait();
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {

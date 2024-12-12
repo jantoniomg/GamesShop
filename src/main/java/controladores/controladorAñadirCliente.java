@@ -27,6 +27,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import modelos.Cliente;
@@ -47,7 +48,8 @@ public class controladorAñadirCliente implements Initializable {
     PreparedStatement ps;
     List<ValidationSupport> validadores;
     Cliente editarCliente;
-    
+    Stage alertStage;
+
     @FXML
     private Button btnAceptar;
 
@@ -114,6 +116,9 @@ public class controladorAñadirCliente implements Initializable {
         if (!todoOK) {
             Alert a = new Alert(Alert.AlertType.INFORMATION);
             a.setContentText("El formulario sigue teniendo ERRORES!!!");
+            Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+            alertStage = (Stage) a.getDialogPane().getScene().getWindow();
+            alertStage.getIcons().add(icon);
             a.showAndWait();
             return;
         }
@@ -143,7 +148,9 @@ public class controladorAñadirCliente implements Initializable {
         alert.setTitle("Adevertencia");
         alert.setHeaderText("¿Estás seguro de que deseas ACEPTAR la operación?");
         alert.setContentText("Los cambios realizados se guardarán.");
-
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(icon);
         Optional<ButtonType> respuesta = alert.showAndWait();
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
@@ -159,7 +166,9 @@ public class controladorAñadirCliente implements Initializable {
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro de que deseas CANCELAR la operación?");
         alert.setContentText("Los cambios realizados no se guardarán.");
-
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(icon);
         Optional<ButtonType> respuesta = alert.showAndWait();
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
@@ -334,7 +343,7 @@ public class controladorAñadirCliente implements Initializable {
         }
     }
 
-    private DropShadow creaDropShadow(Color c){
+    private DropShadow creaDropShadow(Color c) {
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(10);
         dropShadow.setOffsetX(5);
@@ -342,7 +351,7 @@ public class controladorAñadirCliente implements Initializable {
         dropShadow.setColor(c);
         return dropShadow;
     }
-    
+
     private Label iconoPersonalizadoEtiqueta() {
         Label errorLabel = new Label("X");
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");

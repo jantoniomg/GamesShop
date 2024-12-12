@@ -50,6 +50,7 @@ public class controladorAñadirJuego implements Initializable {
     Connection conexion;
     PreparedStatement ps;
     List<ValidationSupport> validadores;
+    Stage alertStage;
 
     @FXML
     private Button btnAceptar;
@@ -193,7 +194,9 @@ public class controladorAñadirJuego implements Initializable {
         alert.setTitle("Advertencia");
         alert.setHeaderText("¿Estás seguro de que deseas CANCELAR la operación?");
         alert.setContentText("Los cambios realizados no se guardarán.");
-
+        Image icon = new Image(getClass().getResourceAsStream("/imagenes/logo.png"));
+        alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        alertStage.getIcons().add(icon);
         Optional<ButtonType> respuesta = alert.showAndWait();
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.OK) {
@@ -386,7 +389,7 @@ public class controladorAñadirJuego implements Initializable {
                 limpiarCampos();
             }
         });
-        
+
         for (ValidationSupport vs : validadores) {
             vs.validationResultProperty().addListener((observable, oldValue, newValue) -> {
                 Set<Control> controles = vs.getRegisteredControls();
